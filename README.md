@@ -16,6 +16,26 @@ The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.
  
 
 # Install
+You can install using the upip:
+
+```python
+import upip
+upip.install("micropython-scron")
+```
+or
+```bash
+micropython -m upip install -p modules micropython-scron
+```
+
+You can also clone this repository, and install it manually:
+
+```bash
+git clone https://github.com/fizista/micropython-scron.git
+cd ./micropython-scron
+./flash-src.sh
+```
+
+
 
 ## ESP8266
 

@@ -1,0 +1,2 @@
+* Add high precision to the counters. So that tasks can be called up with an accuracy of decimal second.
+* Add one day counter.
