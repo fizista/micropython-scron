@@ -29,10 +29,10 @@ class SimpleCRON(SimpleCRONBase):
 
         :param callback_name: callback name ID
         :param callback: callable
-        :param seconds: 0-59 or list(second, ...), default: WILDCARD_VALUE
-        :param minutes: 0-59 or list(minutes, ...), default: WILDCARD_VALUE
-        :param hours: 0-23 or list(hours, ...), default: WILDCARD_VALUE
-        :param weekdays: 0-6 or list(days, ...) 0=monday,6=sunday, default: WILDCARD_VALUE
+        :param seconds: 0-59 or list(second, ...), default: SimpleCRON.WILDCARD_VALUE
+        :param minutes: 0-59 or list(minutes, ...), default: SimpleCRON.WILDCARD_VALUE
+        :param hours: 0-23 or list(hours, ...), default: SimpleCRON.WILDCARD_VALUE
+        :param weekdays: 0-6 or list(days, ...) 0=monday,6=sunday, default: SimpleCRON.WILDCARD_VALUE
         :return: None
         """
         super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds)
@@ -78,7 +78,7 @@ class SimpleCRON(SimpleCRONBase):
             zero_day_time_sec = get_zero_day_time_sec(*current)
 
             period_seconds = zero_day_time_sec + get_pointer_sec(*next_time_pointer) - mktime(current)
-            period_mili_seconds = self.get_time_change_correction(period_seconds * 1000)
+            period_mili_seconds = self._get_time_change_correction(period_seconds * 1000)
 
             timer.init(
                 period=period_mili_seconds,

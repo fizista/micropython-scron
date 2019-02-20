@@ -32,10 +32,10 @@ class SimpleCRONBase(SimpleCounter):
 
     def sync_time(self):
         "Synchronizes SimpleCRON with time."
-        self.set_time_change(self.estimate_time_change())
+        self._set_time_change(self._estimate_time_change())
         self._first_step()
 
-    def estimate_time_change(self):
+    def _estimate_time_change(self):
         """\
         Estimate the time change.
         :return:
@@ -45,23 +45,33 @@ class SimpleCRONBase(SimpleCounter):
         while 1:
             current = int(time())
             if current > last:
-                return (self.get_time_change_pointer() + 1) % 1000
+                return (self._get_time_change_pointer() + 1) % 1000
             sleep_ms(1)
 
-    def set_time_change(self, time_change):
+    def _set_time_change(self, time_change):
         self.time_change = time_change
 
-    def get_time_change_pointer(self):
+    def _get_time_change_pointer(self):
         return ticks_ms()
 
-    def get_time_change_correction(self, delta_time_ms):
-        current = self.get_time_change_pointer() % 1000
+    def _get_time_change_correction(self, delta_time_ms):
+        current = self._get_time_change_pointer() % 1000
         if current >= self.time_change:
             return delta_time_ms - (current - self.time_change)
         else:
             return delta_time_ms - (1000 - (self.time_change - current))
 
     def run(self, timer_id=1):
+        """
+        Initiates a list of tasks and reserves one hardware timer.
+
+        **Warning:**
+        "OSError: 261" - error means a problem with the hardware timer.
+        Try to set another timer ID.
+        `See MicroPython documentation for machine.Timer. <https://docs.micropython.org/en/latest/library/machine.Timer.html>`_
+
+        :param timer_id: hardware timer ID
+        """
         # One good start up is enough
         if self.timer is not None:
             raise Exception('You can run SimpleCRON once.')
@@ -79,9 +89,21 @@ class SimpleCRONBase(SimpleCounter):
         self.next_step(*self.get_next_pointer(*self.get_current_pointer()))(self.timer)
 
     def remove(self, callback_name):
+        """
+        Removes from the counters a callback that occurs under ID callback_name.
+
+        Recalculates the nearest callback to call.
+
+        :param callback_name: callback name
+        """
         super(SimpleCRONBase, self).remove(callback_name)
         self._first_step()
 
     def remove_all(self):
+        """\
+        Removes all calls from the counters.
+
+        Stops the countdown to the nearest callback.
+        """
         super(SimpleCRONBase, self).remove_all()
         self._first_step()
