@@ -26,6 +26,37 @@ def run_times(times):
     return decorator
 
 
+def successfully_run_times(times):
+    """
+    The decorator determines how many times the given callback can be started.
+
+    Launching a task is considered correct only if the callback returns True.
+
+    :param times: number of start-ups
+    :return:
+    """
+    RUN_TIMES_ID = '__s_run_times'
+
+    def decorator(callback):
+        def wrapper(scorn_instance, callback_name, pointer, memory):
+            out = callback(scorn_instance, callback_name, pointer, memory)
+
+            if RUN_TIMES_ID not in memory and out == True:
+                memory[RUN_TIMES_ID] = 1
+            elif RUN_TIMES_ID in memory and out == True:
+                memory[RUN_TIMES_ID] += 1
+            elif RUN_TIMES_ID not in memory :
+                memory[RUN_TIMES_ID] = 0
+
+            if memory[RUN_TIMES_ID] >= times:
+                scorn_instance.remove(callback_name)
+            return out
+
+        return wrapper
+
+    return decorator
+
+
 class call_counter:
     """
     Decorator counts the number of callback calls.

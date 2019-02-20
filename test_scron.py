@@ -1,7 +1,7 @@
 import unittest
 from scron.week import SimpleCRON
 from scron.scount import CounterDict, merge_tree
-from scron.decorators import run_times, call_counter, time_since_last_call
+from scron.decorators import run_times, call_counter, time_since_last_call, successfully_run_times
 
 try:
     from collections import OrderedDict
@@ -720,6 +720,53 @@ class TestDecoratorsCRON(unittest.TestCase):
         callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
         self.assertEqual(memory, {'__run_times': 3})
         self.assertEqual(scron_instance.run_times_counter, 3)
+        self.assertTrue(scron_instance.removed)
+
+    def test_successfully_run_times(self):
+        class scron_instance:
+            removed = False
+            run_times_counter = 0
+
+            @classmethod
+            def remove(cls, callback_name):
+                cls.removed = True
+
+        memory = {}
+
+        def xcallback(scorn_instance, callback_name, pointer, memory):
+            scron_instance.run_times_counter += 1
+            return scron_instance.run_times_counter % 3 == 0
+
+        callback = successfully_run_times(2)(xcallback)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 0})
+        self.assertEqual(scron_instance.run_times_counter, 1)
+        self.assertFalse(scron_instance.removed)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 0})
+        self.assertEqual(scron_instance.run_times_counter, 2)
+        self.assertFalse(scron_instance.removed)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 1})
+        self.assertEqual(scron_instance.run_times_counter, 3)
+        self.assertFalse(scron_instance.removed)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 1})
+        self.assertEqual(scron_instance.run_times_counter, 4)
+        self.assertFalse(scron_instance.removed)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 1})
+        self.assertEqual(scron_instance.run_times_counter, 5)
+        self.assertFalse(scron_instance.removed)
+
+        callback(scron_instance, 'xcallback', (1, 0, 0, 0), memory)
+        self.assertEqual(memory, {'__s_run_times': 2})
+        self.assertEqual(scron_instance.run_times_counter, 6)
         self.assertTrue(scron_instance.removed)
 
     def test_call_counter(self):
