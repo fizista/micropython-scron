@@ -27,6 +27,8 @@ class SimpleCRON(SimpleCRONBase):
         """\
         Adds an entry to the current queue.
 
+        After adding a callback, the next call is recalculated.
+
         :param callback_name: callback name ID
         :param callback: callable
         :param seconds: 0-59 or list(second, ...), default: SimpleCRON.WILDCARD_VALUE
@@ -38,17 +40,45 @@ class SimpleCRON(SimpleCRONBase):
         super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds)
 
     def get_current_pointer(self):
-        "Returns the pointer generated from the current date."
+        """
+        Returns the pointer generated from the current date.
+
+        :return: tuple(weekday, hour, minute, second)
+        """
         year, month, mday, hour, minute, second, weekday, yearday = localtime()
         return weekday, hour, minute, second
 
     def get_next_pointer(self, weekday, hour, minute, second):
+        """
+        Returns the nearest next pointer for the counter.
+
+        :param weekday: 0-6, 0=monday,6=sunday
+        :param hour: 0-23
+        :param minute: 0-59
+        :param second: 0-59
+        :return: tuple(weekday, hour, minute, second)
+        """
         return super(SimpleCRON, self).get_next_pointer(weekday, hour, minute, second)
 
     def run_callbacks(self, weekday, hour, minute, second):
+        """
+        Runs all callbacks for a given pointer.
+
+        :param weekday: 0-6, 0=monday,6=sunday
+        :param hour: 0-23
+        :param minute: 0-59
+        :param second: 0-59
+        """
         return super(SimpleCRON, self).run_callbacks(weekday, hour, minute, second)
 
     def next_step(self, *last_time_pointer):
+        """
+        Returns the generated function for the timer.
+
+        :param last_time_pointer: last call pointer
+        :return: function(timer_instance)
+        """
+
         def _next_step(timer):
             current_pointer = self.get_current_pointer()
             next_time_pointer = self.get_next_pointer(*current_pointer)
