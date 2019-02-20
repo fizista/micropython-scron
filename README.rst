@@ -13,6 +13,8 @@ CRON program for Unix systems.
 
 The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.
 
+`Project documentation. <https://fizista.github.io/micropython-scron/html/index.html>`_
+
 What you can do with this library:
 ##################################
 * Run any task at precisely defined intervals

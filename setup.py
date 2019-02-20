@@ -12,6 +12,7 @@ import sdist_upip
 
 exec(open('scron/version.py').read())
 
+
 def read(file_relative):
     file = __dir__ / file_relative
     with open(str(file)) as f:
@@ -38,4 +39,9 @@ setup(
     keywords='cron scheduler micropython',
     cmdclass={'sdist': sdist_upip.sdist},
     packages=['scron'],
+    project_urls={
+        'Bug Reports': 'https://github.com/fizista/micropython-scron/issues',
+        'Documentation': 'https://fizista.github.io/micropython-scron/',
+        'Source': 'https://github.com/fizista/micropython-scron',
+    },
 )
