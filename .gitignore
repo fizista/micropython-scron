@@ -6,4 +6,4 @@ __pycache__
 build/
 doctrees/
 .buildinfo
-docs/_build
+#docs/_build
