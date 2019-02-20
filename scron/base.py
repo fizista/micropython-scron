@@ -86,7 +86,7 @@ class SimpleCRONBase(SimpleCounter):
         if self.timer == None:
             return
         self.timer.deinit()
-        if len(self.callbacks.keys()) > 0:
+        if len(self.callbacks) > 0:
             self.next_step(*self.get_next_pointer(*self.get_current_pointer()))(self.timer)
 
     def remove(self, callback_name):
