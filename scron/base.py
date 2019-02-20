@@ -80,7 +80,7 @@ class SimpleCRONBase(SimpleCounter):
         # If not, we will get an error: OSError: 261
         timer.init(period=1, mode=Timer.ONE_SHOT, callback=lambda t: None)
         self.timer = timer
-        self.sync_time()
+        self.next_step(0,0,0,0)(self.timer)
 
     def _first_step(self):
         if self.timer == None:
