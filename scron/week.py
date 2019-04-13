@@ -23,7 +23,8 @@ WILDCARD = SimpleCRONBase.WILDCARD_VALUE
 class SimpleCRON(SimpleCRONBase):
     TIME_TABLE_KEYS = OrderedDict([('weekdays', 6), ('hours', 23), ('minutes', 59), ('seconds', 59)])
 
-    def add(self, callback_name, callback, seconds=WILDCARD, minutes=WILDCARD, hours=WILDCARD, weekdays=WILDCARD):
+    def add(self, callback_name, callback, seconds=WILDCARD, minutes=WILDCARD, hours=WILDCARD, weekdays=WILDCARD,
+            removable=True):
         """\
         Adds an entry to the current queue.
 
@@ -35,9 +36,10 @@ class SimpleCRON(SimpleCRONBase):
         :param minutes: 0-59 or list(minutes, ...), default: SimpleCRON.WILDCARD_VALUE
         :param hours: 0-23 or list(hours, ...), default: SimpleCRON.WILDCARD_VALUE
         :param weekdays: 0-6 or list(days, ...) 0=monday,6=sunday, default: SimpleCRON.WILDCARD_VALUE
+        :param removable: boolean if false, then the entry cannot normally be deleted
         :return: None
         """
-        super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds)
+        super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds, removable=removable)
 
     def get_current_pointer(self):
         """

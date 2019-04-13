@@ -26,8 +26,8 @@ class SimpleCRONBase(SimpleCounter):
         super(SimpleCRONBase, self).__init__(*args, **kwargs)
         self.timer = None
 
-    def add(self, callback_name, callback, *time_steps):
-        super(SimpleCRONBase, self).add(callback_name, callback, *time_steps)
+    def add(self, callback_name, callback, *time_steps, removable=True):
+        super(SimpleCRONBase, self).add(callback_name, callback, *time_steps, removable=removable)
         self._first_step()
 
     def sync_time(self):

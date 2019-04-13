@@ -334,6 +334,31 @@ class TestSimpleCRON(unittest.TestCase):
             []
         )
 
+        # ############################################
+        # test added callbacks that cannot be removed.
+        self.simple_cron.add(callback_name='aaa', callback='AAA', seconds=1, minutes=2, hours=3, weekdays=4)
+        self.simple_cron.add(callback_name='bbb', callback='BBB', seconds=59, minutes=59, hours=23, weekdays=6,
+                             removable=False)
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', False)})
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            [
+                (4, 3, 2, 1, {'aaa'}),
+                (6, 23, 59, 59, {'bbb'})
+            ]
+        )
+        with self.assertRaises(Exception):
+            self.simple_cron.remove('bbb')
+
+        self.simple_cron.remove_all()
+        self.assertEqual(self.simple_cron.callbacks, {'bbb': ('BBB', False)})
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            [
+                (6, 23, 59, 59, {'bbb'})
+            ]
+        )
+
     def test_add_and_remove_list__wildcard(self):
         self.simple_cron.add(callback_name='aaaw', callback='AAAW',
                              seconds=1, minutes=2, hours=3, weekdays=SimpleCRON.WILDCARD_VALUE)
