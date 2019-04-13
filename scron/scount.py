@@ -427,7 +427,10 @@ class SimpleCounter():
         :return:
         """
 
-        def get_exactly(time_table_node, current_pointer):
+        get_exactly_stack = [(self.time_table, global_current_pointer)]
+
+        while get_exactly_stack:
+            time_table_node, current_pointer = get_exactly_stack.pop()
             if type(time_table_node) == set:
                 for callback_name in time_table_node:
                     self.callbacks[callback_name](
@@ -438,8 +441,6 @@ class SimpleCounter():
                     )
             else:
                 if self.WILDCARD_VALUE in time_table_node:
-                    get_exactly(time_table_node[self.WILDCARD_VALUE], current_pointer[1:])
+                    get_exactly_stack.append((time_table_node[self.WILDCARD_VALUE], current_pointer[1:]))
                 if current_pointer[0] in time_table_node:
-                    get_exactly(time_table_node[current_pointer[0]], current_pointer[1:])
-
-        get_exactly(self.time_table, global_current_pointer)
+                    get_exactly_stack.append((time_table_node[current_pointer[0]], current_pointer[1:]))
