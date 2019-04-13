@@ -234,7 +234,7 @@ class TestSimpleCRON(unittest.TestCase):
 
     def test_add_and_remove_list(self):
         self.simple_cron.add(callback_name='aaa', callback='AAA', seconds=1, minutes=2, hours=3, weekdays=4)
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True)})
         self.assertEqual(self.simple_cron.callbacks_memory, {'aaa': {}})
         self.assertEqual(
             list(self.simple_cron.list()),
@@ -244,7 +244,7 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.add(callback_name='bbb', callback='BBB', seconds=59, minutes=59, hours=23, weekdays=6)
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -254,7 +254,7 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.add(callback_name='ccc', callback='CCC', seconds=1, minutes=2, hours=3, weekdays=6)
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB', 'ccc': 'CCC'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', True), 'ccc': ('CCC', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -265,7 +265,7 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.remove(callback_name='ccc')
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -275,7 +275,7 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.remove(callback_name='bbb')
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -290,7 +290,7 @@ class TestSimpleCRON(unittest.TestCase):
 
         self.simple_cron.add(callback_name='aaa', callback='AAA', seconds=1, minutes=2, hours=3,
                              weekdays=range(0, 7, 2))
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -346,8 +346,11 @@ class TestSimpleCRON(unittest.TestCase):
         self.simple_cron.add(callback_name='bbb', callback='BBB', seconds=59, minutes=59, hours=23, weekdays=6)
         self.simple_cron.add(callback_name='ccc', callback='CCC', seconds=1, minutes=2, hours=3, weekdays=6)
 
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB', 'ccc': 'CCC',
-                                                      'aaaw': 'AAAW', 'bbbw': 'BBBW', 'cccw': 'CCCW'})
+        self.assertEqual(
+            self.simple_cron.callbacks,
+            {'aaa': ('AAA', True), 'bbb': ('BBB', True), 'ccc': ('CCC', True),
+             'aaaw': ('AAAW', True), 'bbbw': ('BBBW', True), 'cccw': ('CCCW', True)}
+        )
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -361,8 +364,8 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.remove(callback_name='cccw')
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB', 'ccc': 'CCC',
-                                                      'aaaw': 'AAAW', 'bbbw': 'BBBW'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', True), 'ccc': ('CCC', True),
+                                                      'aaaw': ('AAAW', True), 'bbbw': ('BBBW', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -375,8 +378,8 @@ class TestSimpleCRON(unittest.TestCase):
         )
 
         self.simple_cron.remove(callback_name='ccc')
-        self.assertEqual(self.simple_cron.callbacks, {'aaa': 'AAA', 'bbb': 'BBB',
-                                                      'aaaw': 'AAAW', 'bbbw': 'BBBW'})
+        self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True), 'bbb': ('BBB', True),
+                                                      'aaaw': ('AAAW', True), 'bbbw': ('BBBW', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [
@@ -517,7 +520,7 @@ class TestSimpleCRON(unittest.TestCase):
 
         self.simple_cron.remove_all()
         self.simple_cron.add(callback_name='xx', callback='XX', seconds=range(0, 59, 10))
-        self.assertEqual(self.simple_cron.callbacks, {'xx': 'XX'})
+        self.assertEqual(self.simple_cron.callbacks, {'xx': ('XX', True)})
         self.assertEqual(
             list(self.simple_cron.list()),
             [

@@ -237,13 +237,14 @@ class SimpleCounter():
         except TypeError:
             return [self._validate_value(input_name, input, max_digit)]
 
-    def add(self, callback_name, callback, *time_steps):
+    def add(self, callback_name, callback, *time_steps, removable=True):
         """\
         Adds an entry to the current queue.
 
         :param callback_name: callback name ID
         :param callback: callable(<SimpleCRON_instance>, <callback_name>, <current_pointer>)
         :param time_steps: list counters steps, eg. [[2,5], 3, 1, [2,3,4]], index 0 -> highest counter
+        :param removable: boolean if false, then the entry cannot normally be deleted
         :return: None
         """
         time_steps_validated = []
@@ -274,7 +275,7 @@ class SimpleCounter():
 
         self.time_table = insert_part(self.time_table)
 
-        self.callbacks[callback_name] = callback
+        self.callbacks[callback_name] = (callback, removable)
         self.callbacks_memory[callback_name] = {}
 
     def callback_exists(self, callback_name):
@@ -294,6 +295,9 @@ class SimpleCounter():
         :return:
         """
 
+        if not self.callbacks[callback_name][1]:
+            raise Exception('This callback cannot be removed!')
+
         def part_remove(time_table_node):
             if type(time_table_node) is set:
                 try:
@@ -306,7 +310,7 @@ class SimpleCounter():
 
             if len(time_table_node) == 0:
                 del time_table_node
-                return time_table_node
+                return
 
             for time_table_key in list(time_table_node.keys()):
                 part_out = part_remove(time_table_node[time_table_key])
@@ -317,6 +321,9 @@ class SimpleCounter():
 
         self.time_table = part_remove(self.time_table)
 
+        if self.time_table is None:
+            self.time_table = OrderedDict()
+
         self.callbacks.pop(callback_name)
         self.callbacks_memory.pop(callback_name)
 
@@ -326,9 +333,13 @@ class SimpleCounter():
 
         :return:
         """
-        self.time_table = OrderedDict()
-        self.callbacks = {}
-        self.callbacks_memory = {}
+        to_remove = []
+        for callback_name, data in self.callbacks.items():
+            # We're checking to see if we can remove it.
+            if data[1]:
+                to_remove.append(callback_name)
+        for callback_name in to_remove:
+            self.remove(callback_name)
 
     def list(self, _time_table_node=None, _prev_data=None):
         """\
@@ -433,7 +444,7 @@ class SimpleCounter():
             time_table_node, current_pointer = get_exactly_stack.pop()
             if type(time_table_node) == set:
                 for callback_name in time_table_node:
-                    self.callbacks[callback_name](
+                    self.callbacks[callback_name][0](
                         self,
                         callback_name,
                         global_current_pointer,
