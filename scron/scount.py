@@ -287,16 +287,18 @@ class SimpleCounter():
         """
         return callback_name in self.callbacks
 
-    def remove(self, callback_name):
+    def remove(self, callback_name, force=False):
         """\
         Removes from the counters a callback that occurs under ID callback_name.
 
         :param callback_name: callback name ID
+        :param force: force removal of the callback.
         :return:
         """
 
-        if not self.callbacks[callback_name][1]:
-            raise Exception('This callback cannot be removed!')
+        if not force:
+            if not self.callbacks[callback_name][1]:
+                raise Exception('This callback cannot be removed!')
 
         def part_remove(time_table_node):
             if type(time_table_node) is set:
@@ -327,19 +329,24 @@ class SimpleCounter():
         self.callbacks.pop(callback_name)
         self.callbacks_memory.pop(callback_name)
 
-    def remove_all(self):
+    def remove_all(self, force=False):
         """\
         Removes all calls from the counters.
 
+        :param force: force removal of the callback.
         :return:
         """
         to_remove = []
-        for callback_name, data in self.callbacks.items():
-            # We're checking to see if we can remove it.
-            if data[1]:
-                to_remove.append(callback_name)
+        if force:
+            to_remove = list(self.callbacks.keys())
+        else:
+            for callback_name, data in self.callbacks.items():
+                # We're checking to see if we can remove it.
+                if data[1]:
+                    to_remove.append(callback_name)
+        callback_names = self.callbacks.keys()
         for callback_name in to_remove:
-            self.remove(callback_name)
+            self.remove(callback_name, force)
 
     def list(self, _time_table_node=None, _prev_data=None):
         """\

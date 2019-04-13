@@ -83,6 +83,11 @@ Simple code to run every second:
 .. code-block:: python
 
     from scron.week import simple_cron
+    # Depending on the device, you need to add a task that
+    # will be started at intervals shorter than the longest
+    # time the timer can count.
+    # esp8266 about 5 minutes
+    simple_cron.add('null', lambda *a, **k: None, minutes=5, removable=False)
     simple_cron.add('helloID', lambda *a,**k: print('hello'))
     simple_cron.run()
 

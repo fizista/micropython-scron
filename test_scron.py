@@ -359,6 +359,19 @@ class TestSimpleCRON(unittest.TestCase):
             ]
         )
 
+        self.simple_cron.remove_all(force=True)
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            []
+        )
+        self.simple_cron.add(callback_name='bbb', callback='BBB', seconds=59, minutes=59, hours=23, weekdays=6,
+                             removable=False)
+        self.simple_cron.remove('bbb', force=True)
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            []
+        )
+
     def test_add_and_remove_list__wildcard(self):
         self.simple_cron.add(callback_name='aaaw', callback='AAAW',
                              seconds=1, minutes=2, hours=3, weekdays=SimpleCRON.WILDCARD_VALUE)

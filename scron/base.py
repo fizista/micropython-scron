@@ -89,22 +89,25 @@ class SimpleCRONBase(SimpleCounter):
         if len(self.callbacks) > 0:
             self.next_step(*self.get_next_pointer(*self.get_current_pointer()))(self.timer)
 
-    def remove(self, callback_name):
+    def remove(self, callback_name, force=False):
         """
         Removes from the counters a callback that occurs under ID callback_name.
 
         Recalculates the nearest callback to call.
 
+        :param force: force removal of the callback.
         :param callback_name: callback name
         """
-        super(SimpleCRONBase, self).remove(callback_name)
+        super(SimpleCRONBase, self).remove(callback_name, force)
         self._first_step()
 
-    def remove_all(self):
+    def remove_all(self, force=False):
         """\
         Removes all calls from the counters.
 
         Stops the countdown to the nearest callback.
+
+        :param force: force removal of the callback.
         """
-        super(SimpleCRONBase, self).remove_all()
+        super(SimpleCRONBase, self).remove_all(force)
         self._first_step()
