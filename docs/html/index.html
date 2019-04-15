@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Simple CRON for MicroPython &#8212; SimpleCRON master documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -46,19 +44,20 @@
 <p>SimpleCRON is a time-based task scheduling program inspired by the well-known
 CRON program for Unix systems.</p>
 <p>The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.</p>
+<p><a class="reference external" href="https://fizista.github.io/micropython-scron/html/index.html">Project documentation.</a></p>
 <div class="section" id="what-you-can-do-with-this-library">
 <h2>What you can do with this library:<a class="headerlink" href="#what-you-can-do-with-this-library" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Run any task at precisely defined intervals</li>
-<li>Delete and add tasks while the program is running.</li>
-<li>Run the task a certain number of times and many more.</li>
+<li><p>Run any task at precisely defined intervals</p></li>
+<li><p>Delete and add tasks while the program is running.</p></li>
+<li><p>Run the task a certain number of times and many more.</p></li>
 </ul>
 </div>
 <div class="section" id="requirements">
 <h2>Requirements:<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>The board on which the micropython is installed(v1.10)</li>
-<li>The board must have support for hardware timers.</li>
+<li><p>The board on which the micropython is installed(v1.10)</p></li>
+<li><p>The board must have support for hardware timers.</p></li>
 </ul>
 </div>
 <div class="section" id="install">
@@ -96,6 +95,12 @@ CRON program for Unix systems.</p>
 <h2>Simple examples<a class="headerlink" href="#simple-examples" title="Permalink to this headline">¶</a></h2>
 <p>Simple code to run every second:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scron.week</span> <span class="kn">import</span> <span class="n">simple_cron</span>
+<span class="c1"># Depending on the device, you need to add a task that</span>
+<span class="c1"># will be started at intervals shorter than the longest</span>
+<span class="c1"># time the timer can count.</span>
+<span class="c1"># esp8266 about 5 minutes</span>
+<span class="c1"># esp32 - for processor ESP32D0WDQ6, the problem did not occur</span>
+<span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">removable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;helloID&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">))</span>
 <span class="n">simple_cron</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -148,30 +153,30 @@ and from then on SimpleCRON is ready to use.</p>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><code class="code python docutils literal notranslate"><span class="name"><span class="pre">scorn_instance</span></span></code> - SimpleCRON instance, in this case scron.weekend.simple_cron</li>
-<li><code class="code python docutils literal notranslate"><span class="name"><span class="pre">callback_name</span></span></code> - Callback ID</li>
-<li><code class="code python docutils literal notranslate"><span class="name"><span class="pre">pointer</span></span></code> - This is an indicator of the time in which the task was to be run.
-Example: (6, 13, 5, 10).  This is <strong>(</strong> Sunday <strong>,</strong> 1 p.m. <strong>,</strong> minutes 5 <strong>,</strong> seconds 10 <strong>)</strong></li>
-<li><code class="code python docutils literal notranslate"><span class="name"><span class="pre">memory</span></span></code> - Shared memory for this particular callback, between all calls.
-By default this is a dictionary.</li>
+<li><p><code class="code python docutils literal notranslate"><span class="name"><span class="pre">scorn_instance</span></span></code> - SimpleCRON instance, in this case scron.weekend.simple_cron</p></li>
+<li><p><code class="code python docutils literal notranslate"><span class="name"><span class="pre">callback_name</span></span></code> - Callback ID</p></li>
+<li><p><code class="code python docutils literal notranslate"><span class="name"><span class="pre">pointer</span></span></code> - This is an indicator of the time in which the task was to be run.
+Example: (6, 13, 5, 10).  This is <strong>(</strong> Sunday <strong>,</strong> 1 p.m. <strong>,</strong> minutes 5 <strong>,</strong> seconds 10 <strong>)</strong></p></li>
+<li><p><code class="code python docutils literal notranslate"><span class="name"><span class="pre">memory</span></span></code> - Shared memory for this particular callback, between all calls.
+By default this is a dictionary.</p></li>
 </ul>
 </div>
 <div class="section" id="important-notes">
 <h2>Important notes:<a class="headerlink" href="#important-notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>If a task takes a very long time, it blocks the execution of other tasks!</li>
-<li>If there are several functions to run at a given time, then they are
-started without a specific order.</li>
-<li>If the time has been changed (time synchronization with the network,
+<li><p>If a task takes a very long time, it blocks the execution of other tasks!</p></li>
+<li><p>If there are several functions to run at a given time, then they are
+started without a specific order.</p></li>
+<li><p>If the time has been changed (time synchronization with the network,
 own time change), run the <code class="code python docutils literal notranslate"><span class="name"><span class="pre">simple_cron</span></span><span class="operator"><span class="pre">.</span></span><span class="name"><span class="pre">sync_time</span></span><span class="punctuation"><span class="pre">()</span></span></code> function,
 which will set a specific point in time. Without this setting,
-it may happen that some callbacks will not be started.</li>
+it may happen that some callbacks will not be started.</p></li>
 </ul>
 </div>
 <div class="section" id="what-has-not-been-tested">
 <h2>What has not been tested:<a class="headerlink" href="#what-has-not-been-tested" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>SimpleCRON operation during sleep</li>
+<li><p>SimpleCRON operation during sleep</p></li>
 </ul>
 </div>
 <div class="section" id="how-to-test">
@@ -208,9 +213,9 @@ please contact me: <a class="reference external" href="mailto:fizista+scron&#37;
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 
@@ -258,8 +263,6 @@ please contact me: <a class="reference external" href="mailto:fizista+scron&#37;
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -285,7 +288,7 @@ please contact me: <a class="reference external" href="mailto:fizista+scron&#37;
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Wojciech Banaś.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
   </body>
 </html>

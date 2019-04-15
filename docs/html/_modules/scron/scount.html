@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>scron.scount &#8212; SimpleCRON master documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -278,13 +276,14 @@
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate_value</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">max_digit</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="o">*</span><span class="n">time_steps</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="o">*</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">removable</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Adds an entry to the current queue.</span>
 
 <span class="sd">        :param callback_name: callback name ID</span>
 <span class="sd">        :param callback: callable(&lt;SimpleCRON_instance&gt;, &lt;callback_name&gt;, &lt;current_pointer&gt;)</span>
 <span class="sd">        :param time_steps: list counters steps, eg. [[2,5], 3, 1, [2,3,4]], index 0 -&gt; highest counter</span>
+<span class="sd">        :param removable: boolean if false, then the entry cannot normally be deleted</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">time_steps_validated</span> <span class="o">=</span> <span class="p">[]</span>
@@ -315,7 +314,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="o">=</span> <span class="n">insert_part</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">removable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="p">[</span><span class="n">callback_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">callback_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">):</span>
@@ -327,13 +326,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span>
 
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Removes from the counters a callback that occurs under ID callback_name.</span>
 
 <span class="sd">        :param callback_name: callback name ID</span>
+<span class="sd">        :param force: force removal of the callback.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;This callback cannot be removed!&#39;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">part_remove</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
@@ -347,7 +351,7 @@
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">time_table_node</span>
-                <span class="k">return</span> <span class="n">time_table_node</span>
+                <span class="k">return</span>
 
             <span class="k">for</span> <span class="n">time_table_key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">time_table_node</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="n">part_out</span> <span class="o">=</span> <span class="n">part_remove</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">[</span><span class="n">time_table_key</span><span class="p">])</span>
@@ -358,18 +362,30 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="o">=</span> <span class="n">part_remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Removes all calls from the counters.</span>
 
+<span class="sd">        :param force: force removal of the callback.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">to_remove</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># We&#39;re checking to see if we can remove it.</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
+        <span class="n">callback_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_time_table_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_prev_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
@@ -468,10 +484,13 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">get_exactly</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">,</span> <span class="n">current_pointer</span><span class="p">):</span>
+        <span class="n">get_exactly_stack</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">,</span> <span class="n">global_current_pointer</span><span class="p">)]</span>
+
+        <span class="k">while</span> <span class="n">get_exactly_stack</span><span class="p">:</span>
+            <span class="n">time_table_node</span><span class="p">,</span> <span class="n">current_pointer</span> <span class="o">=</span> <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">](</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span>
                         <span class="bp">self</span><span class="p">,</span>
                         <span class="n">callback_name</span><span class="p">,</span>
                         <span class="n">global_current_pointer</span><span class="p">,</span>
@@ -479,11 +498,9 @@
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
-                    <span class="n">get_exactly</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">time_table_node</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
                 <span class="k">if</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
-                    <span class="n">get_exactly</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">[</span><span class="n">current_pointer</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-
-        <span class="n">get_exactly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">,</span> <span class="n">global_current_pointer</span><span class="p">)</span>
+                    <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">time_table_node</span><span class="p">[</span><span class="n">current_pointer</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
 </pre></div>
 
           </div>
@@ -497,8 +514,6 @@
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -522,7 +537,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Wojciech Banaś.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
     </div>
   </body>
 </html>
