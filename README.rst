@@ -87,7 +87,8 @@ Simple code to run every second:
     # will be started at intervals shorter than the longest
     # time the timer can count.
     # esp8266 about 5 minutes
-    simple_cron.add('null', lambda *a, **k: None, minutes=5, removable=False)
+    # esp32 - for processor ESP32D0WDQ6, the problem did not occur
+    simple_cron.add('null', lambda *a, **k: None, seconds=0, minutes=range(0,59,5), removable=False)
     simple_cron.add('helloID', lambda *a,**k: print('hello'))
     simple_cron.run()
 
