@@ -12,6 +12,7 @@ then
     make html
     cd ..
     version=$(awk '{ if ($0 ~ /__version__/) {out=gensub(/[\047\057]/,"", "g", $3); print out}}' ./scron/version.py)
+    git add scron/version.py
     git commit -m "New version ${version}"
     git tag -a "v${version}" -m "New version ${version}"
     git push origin "v${version}"
