@@ -386,8 +386,11 @@ class SimpleCounter():
 
         :param current_pointer: index 0 -> highest counter
 
-        :return: tuple(<highest counter pointer>, ...)
+        :return: tuple(<highest counter pointer>, ...) or None
         """
+        if len(self.callbacks) == 0:
+            return None
+
         next_time_pointer = []
         current_time_pointer_reversed = list(reversed(current_pointer))
         current_time_pointer_reversed[0] += 1
@@ -430,8 +433,6 @@ class SimpleCounter():
 
             raise KeyError()
 
-        if len(self.callbacks) <= 0:
-            return None
         time_table = CounterDict(self.time_table, list(reversed(time_max_digits)))
         try:
             out = get_nearest(time_table, next_time_pointer)
