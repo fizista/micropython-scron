@@ -87,7 +87,14 @@ class SimpleCRONBase(SimpleCounter):
             return
         self.timer.deinit()
         if len(self.callbacks) > 0:
-            self.next_step(*self.get_next_pointer(*self.get_current_pointer()))(self.timer)
+            next_pointer = self.get_next_pointer(*self.get_current_pointer())
+            if next_pointer == None:
+                # Possible when the callback is removed during operation.
+                if len(self.callbacks) > 0:
+                    # This situation should not happen. If there is a callback, then the next indicator must exist.
+                    raise Exception('scron bug,1')
+                return
+            self.next_step(*next_pointer)(self.timer)
 
     def remove(self, callback_name, force=False):
         """
