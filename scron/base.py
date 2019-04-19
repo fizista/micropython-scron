@@ -117,7 +117,6 @@ class SimpleCRONBase(SimpleCounter):
         :param force: force removal of the callback.
         """
         super(SimpleCRONBase, self).remove_all(force)
-        self._first_step()
 
     def _wait_for_unlock_rw(self):
         """\

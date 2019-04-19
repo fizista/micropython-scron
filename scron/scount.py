@@ -301,12 +301,8 @@ class SimpleCounter():
         if callback_name not in self.callbacks:
             return
 
-        if self._lock_rw:
-            skip_remove_lock_rw = True
-        else:
-            skip_remove_lock_rw = False
-            # Imposing a blockade of changes on the callback database.
-            self._lock_rw = _lock
+        # Imposing a blockade of changes on the callback database.
+        self._lock_rw = _lock
 
         if not force:
             if not self.callbacks[callback_name][1]:
@@ -341,20 +337,16 @@ class SimpleCounter():
         self.callbacks.pop(callback_name)
         self.callbacks_memory.pop(callback_name)
 
-        if not skip_remove_lock_rw:
-            # Removal of the blockade of changes in the callback database.
-            self._lock_rw = False
+        # Removal of the blockade of changes in the callback database.
+        self._lock_rw = False
 
-    def remove_all(self, force=False, _lock=True):
+    def remove_all(self, force=False):
         """\
         Removes all calls from the counters.
 
         :param force: force removal of the callback.
         :return:
         """
-        # Imposing a blockade of changes on the callback database.
-        self._lock_rw = _lock
-
         to_remove = []
         if force:
             to_remove = list(self.callbacks.keys())
@@ -366,9 +358,6 @@ class SimpleCounter():
         callback_names = self.callbacks.keys()
         for callback_name in to_remove:
             self.remove(callback_name, force)
-
-        # Removal of the blockade of changes in the callback database.
-        self._lock_rw = False
 
     def list(self, _time_table_node=None, _prev_data=None):
         """\
