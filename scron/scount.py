@@ -98,8 +98,9 @@ class CounterDict:
         """
         self.count_table = count_table
         self.count_table_limits = count_table_limits
-        if max(self.keys()) > count_table_limits[0]:
-            raise KeyError('Keys can have a maximum value of %d' % count_table_limits[0])
+        if len(list(self.keys())) > 0:
+            if max(self.keys()) > count_table_limits[0]:
+                raise KeyError('Keys can have a maximum value of %d' % count_table_limits[0])
 
     def items(self):
         def get_value(key, value):
