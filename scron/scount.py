@@ -164,6 +164,7 @@ class CounterDict:
 
 class SimpleCounter():
     WILDCARD_VALUE = -1
+    _lock_rw = False
 
     # The dictionary contains a description of all the fields counter.
     # The order is important!!!
@@ -247,6 +248,8 @@ class SimpleCounter():
         :param removable: boolean if false, then the entry cannot normally be deleted
         :return: None
         """
+        self._wait_for_unlock_rw()
+
         time_steps_validated = []
         for time_step_key, (time_table_key, time_table_value) in enumerate(self.TIME_TABLE_KEYS.items()):
             time_steps_validated.append(
@@ -287,7 +290,7 @@ class SimpleCounter():
         """
         return callback_name in self.callbacks
 
-    def remove(self, callback_name, force=False):
+    def remove(self, callback_name, force=False, _lock=True):
         """\
         Removes from the counters a callback that occurs under ID callback_name.
 
@@ -297,6 +300,13 @@ class SimpleCounter():
         """
         if callback_name not in self.callbacks:
             return
+
+        if self._lock_rw:
+            skip_remove_lock_rw = True
+        else:
+            skip_remove_lock_rw = False
+            # Imposing a blockade of changes on the callback database.
+            self._lock_rw = _lock
 
         if not force:
             if not self.callbacks[callback_name][1]:
@@ -331,13 +341,20 @@ class SimpleCounter():
         self.callbacks.pop(callback_name)
         self.callbacks_memory.pop(callback_name)
 
-    def remove_all(self, force=False):
+        if not skip_remove_lock_rw:
+            # Removal of the blockade of changes in the callback database.
+            self._lock_rw = False
+
+    def remove_all(self, force=False, _lock=True):
         """\
         Removes all calls from the counters.
 
         :param force: force removal of the callback.
         :return:
         """
+        # Imposing a blockade of changes on the callback database.
+        self._lock_rw = _lock
+
         to_remove = []
         if force:
             to_remove = list(self.callbacks.keys())
@@ -350,6 +367,9 @@ class SimpleCounter():
         for callback_name in to_remove:
             self.remove(callback_name, force)
 
+        # Removal of the blockade of changes in the callback database.
+        self._lock_rw = False
+
     def list(self, _time_table_node=None, _prev_data=None):
         """\
         Returns the generator containing full and ordered information about all steps.
@@ -358,6 +378,8 @@ class SimpleCounter():
         :param _prev_data: internal variable
         :return:
         """
+        self._wait_for_unlock_rw()
+
         if type(_time_table_node) is set:
             yield _prev_data + (_time_table_node,)
         else:
@@ -390,6 +412,8 @@ class SimpleCounter():
         """
         if len(self.callbacks) == 0:
             return None
+
+        self._wait_for_unlock_rw()
 
         next_time_pointer = []
         current_time_pointer_reversed = list(reversed(current_pointer))
@@ -447,6 +471,7 @@ class SimpleCounter():
         :param current_pointer: index 0 -> highest counter
         :return:
         """
+        self._wait_for_unlock_rw()
 
         get_exactly_stack = [(self.time_table, global_current_pointer)]
 
@@ -465,3 +490,9 @@ class SimpleCounter():
                     get_exactly_stack.append((time_table_node[self.WILDCARD_VALUE], current_pointer[1:]))
                 if current_pointer[0] in time_table_node:
                     get_exactly_stack.append((time_table_node[current_pointer[0]], current_pointer[1:]))
+
+    def _wait_for_unlock_rw(self):
+        """\
+        Returns the current pointer for the counter.
+        """
+        raise NotImplementedError()

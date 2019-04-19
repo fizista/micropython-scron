@@ -118,3 +118,16 @@ class SimpleCRONBase(SimpleCounter):
         """
         super(SimpleCRONBase, self).remove_all(force)
         self._first_step()
+
+    def _wait_for_unlock_rw(self):
+        """\
+        Returns the current pointer for the counter.
+        """
+        # We wait 5 seconds, if the lock is not removed then we emit an error.
+        from utime import sleep_ms
+        for i in range(5000):
+            sleep_ms(1)
+            if not self._lock_rw:
+                return
+        raise Exception('Too long to wait for the lock to be removed!')
+
