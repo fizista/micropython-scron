@@ -295,6 +295,8 @@ class SimpleCounter():
         :param force: force removal of the callback.
         :return:
         """
+        if callback_name not in self.callbacks:
+            return
 
         if not force:
             if not self.callbacks[callback_name][1]:
