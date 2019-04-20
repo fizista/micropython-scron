@@ -350,13 +350,10 @@ class SimpleCounter():
         :return:
         """
         to_remove = []
-        if force:
-            to_remove = list(self.callbacks.keys())
-        else:
-            for callback_name, data in self.callbacks.items():
-                # We're checking to see if we can remove it.
-                if data[1]:
-                    to_remove.append(callback_name)
+        for callback_name, data in self.callbacks.items():
+            # We're checking to see if we can remove it.
+            if force or data[1]:
+                to_remove.append(callback_name)
         callback_names = self.callbacks.keys()
         for callback_name in to_remove:
             self.remove(callback_name, force)
