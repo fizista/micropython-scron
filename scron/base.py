@@ -57,12 +57,15 @@ class SimpleCRONBase(SimpleCounter):
     def _get_time_change_correction(self, delta_time_ms):
         current = self._get_time_change_pointer() % 1000
         # Immediate triggering
-        if delta_time_ms == 0:
-            return 0
+        # There may also be no negative values of
         if current >= self.time_change:
-            return delta_time_ms - (current - self.time_change)
+            out = delta_time_ms - (current - self.time_change)
         else:
-            return delta_time_ms - (1000 - (self.time_change - current))
+            out = delta_time_ms - (1000 - (self.time_change - current))
+        if out < 0:
+            return 0
+        else:
+            return out
 
     def run(self, timer_id=1):
         """
