@@ -288,6 +288,24 @@ class TestSimpleCRON(unittest.TestCase):
         self.assertEqual(self.simple_cron.time_table, {})
         self.assertEqual(self.simple_cron.callbacks_memory, {})
 
+        self.simple_cron.add(callback_name='wait-for-connection', callback='wait-for-connection')
+        self.simple_cron.add(callback_name='wait-for-connection2', callback='wait-for-connection2')
+        self.simple_cron.add(callback_name='wait-for-connection3', callback='wait-for-connection3')
+        self.simple_cron.remove(callback_name='wait-for-connection2')
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            [(-1, -1, -1, -1, {'wait-for-connection3', 'wait-for-connection'})]
+        )
+        self.simple_cron.remove(callback_name='wait-for-connection3')
+        self.assertEqual(
+            list(self.simple_cron.list()),
+            [(-1, -1, -1, -1, {'wait-for-connection'})]
+        )
+        self.simple_cron.remove(callback_name='wait-for-connection')
+        self.assertEqual(self.simple_cron.callbacks, {})
+        self.assertEqual(self.simple_cron.time_table, {})
+        self.assertEqual(self.simple_cron.callbacks_memory, {})
+
         self.simple_cron.add(callback_name='aaa', callback='AAA', seconds=1, minutes=2, hours=3,
                              weekdays=range(0, 7, 2))
         self.assertEqual(self.simple_cron.callbacks, {'aaa': ('AAA', True)})
@@ -300,6 +318,7 @@ class TestSimpleCRON(unittest.TestCase):
                 (6, 3, 2, 1, {'aaa'}),
             ]
         )
+        self.simple_cron.remove(callback_name='aaa')
 
         self.simple_cron.add(callback_name='1', callback='1', seconds=2, minutes=2, hours=3, weekdays=6)
         self.simple_cron.add(callback_name='2', callback='1', seconds=1, minutes=2, hours=3, weekdays=6)  #
@@ -471,7 +490,7 @@ class TestSimpleCRON(unittest.TestCase):
         self.assertEqual(self.simple_cron.get_next_pointer(0, 0, 0, 0), None)
 
         self.simple_cron.add(callback_name='1', callback='1', seconds=2, minutes=2, hours=3, weekdays=6)
-        self.assertEqual(list(self.simple_cron.get_next_pointer(6, 3, 2, 2)), [6,3,2,2])
+        self.assertEqual(list(self.simple_cron.get_next_pointer(6, 3, 2, 2)), [6, 3, 2, 2])
 
         self.simple_cron.add(callback_name='2', callback='1', seconds=1, minutes=2, hours=3, weekdays=6)  #
         self.simple_cron.add(callback_name='3', callback='1', seconds=1, minutes=3, hours=3, weekdays=6)
@@ -697,37 +716,37 @@ class TestSimpleCRON(unittest.TestCase):
         sc.time_change = 300
 
         sc._get_time_change_pointer = lambda: 300
-        self.assertEqual(sc._get_time_change_correction(0), 0)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000)
 
         sc._get_time_change_pointer = lambda: 400
-        self.assertEqual(sc._get_time_change_correction(0), -100)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-100)
 
         sc._get_time_change_pointer = lambda: 500
-        self.assertEqual(sc._get_time_change_correction(0), -200)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-200)
 
         sc._get_time_change_pointer = lambda: 600
-        self.assertEqual(sc._get_time_change_correction(0), -300)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-300)
 
         sc._get_time_change_pointer = lambda: 700
-        self.assertEqual(sc._get_time_change_correction(0), -400)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-400)
 
         sc._get_time_change_pointer = lambda: 800
-        self.assertEqual(sc._get_time_change_correction(0), -500)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-500)
 
         sc._get_time_change_pointer = lambda: 900
-        self.assertEqual(sc._get_time_change_correction(0), -600)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-600)
 
         sc._get_time_change_pointer = lambda: 1000
-        self.assertEqual(sc._get_time_change_correction(0), -700)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-700)
 
         sc._get_time_change_pointer = lambda: 100
-        self.assertEqual(sc._get_time_change_correction(0), -800)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-800)
 
         sc._get_time_change_pointer = lambda: 200
-        self.assertEqual(sc._get_time_change_correction(0), -900)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-900)
 
         sc._get_time_change_pointer = lambda: 299
-        self.assertEqual(sc._get_time_change_correction(0), -999)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000-999)
 
 
 class TestDecoratorsCRON(unittest.TestCase):
