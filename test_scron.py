@@ -301,8 +301,6 @@ class TestSimpleCRON(unittest.TestCase):
             ]
         )
 
-        self.simple_cron.remove_all()
-
         self.simple_cron.add(callback_name='1', callback='1', seconds=2, minutes=2, hours=3, weekdays=6)
         self.simple_cron.add(callback_name='2', callback='1', seconds=1, minutes=2, hours=3, weekdays=6)  #
 
@@ -473,6 +471,8 @@ class TestSimpleCRON(unittest.TestCase):
         self.assertEqual(self.simple_cron.get_next_pointer(0, 0, 0, 0), None)
 
         self.simple_cron.add(callback_name='1', callback='1', seconds=2, minutes=2, hours=3, weekdays=6)
+        self.assertEqual(list(self.simple_cron.get_next_pointer(6, 3, 2, 2)), [6,3,2,2])
+
         self.simple_cron.add(callback_name='2', callback='1', seconds=1, minutes=2, hours=3, weekdays=6)  #
         self.simple_cron.add(callback_name='3', callback='1', seconds=1, minutes=3, hours=3, weekdays=6)
         self.simple_cron.add(callback_name='4', callback='1', seconds=1, minutes=1, hours=3, weekdays=6)  #

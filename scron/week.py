@@ -41,13 +41,17 @@ class SimpleCRON(SimpleCRONBase):
         """
         super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds, removable=removable)
 
-    def get_current_pointer(self):
+    def get_current_pointer(self, _localtime=None):
         """
         Returns the pointer generated from the current date.
 
         :return: tuple(weekday, hour, minute, second)
         """
-        year, month, mday, hour, minute, second, weekday, yearday = localtime()
+        if _localtime:
+            lt = _localtime
+        else:
+            lt = localtime()
+        year, month, mday, hour, minute, second, weekday, yearday = lt
         return weekday, hour, minute, second
 
     def get_next_pointer(self, weekday, hour, minute, second):
@@ -82,6 +86,7 @@ class SimpleCRON(SimpleCRONBase):
         """
 
         def _next_step(timer):
+            current = localtime()
             current_pointer = self.get_current_pointer()
             next_time_pointer = self.get_next_pointer(*current_pointer)
 
@@ -106,7 +111,6 @@ class SimpleCRON(SimpleCRONBase):
             def get_pointer_sec(weekday, hour, minute, second):
                 return weekday * 24 * 60 * 60 + hour * 60 * 60 + minute * 60 + second
 
-            current = localtime()
             zero_day_time_sec = get_zero_day_time_sec(*current)
 
             period_seconds = zero_day_time_sec + get_pointer_sec(*next_time_pointer) - mktime(current)
