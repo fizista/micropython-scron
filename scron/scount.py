@@ -315,7 +315,8 @@ class SimpleCounter():
                     time_table_node.remove(callback_name)
                     if len(time_table_node) == 0:
                         del time_table_node
-                    return
+                        return
+                    return time_table_node
                 except KeyError:
                     return time_table_node
 
