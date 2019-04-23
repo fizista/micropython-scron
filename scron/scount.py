@@ -390,6 +390,28 @@ class SimpleCounter():
         """
         raise NotImplementedError()
 
+    def _get_nearest_time_pointer(self, *current_pointer):
+        """
+        Returns time pointer + one smallest step.
+
+        :param pointer: index 0 -> highest counter
+        :return:
+        """
+        # We find the nearest possible time after the current one
+        nearest_time_pointer = []
+        current_time_pointer_reversed = list(reversed(current_pointer))
+        current_time_pointer_reversed[0] += 1
+        time_max_digits = list(reversed(list(self.TIME_TABLE_KEYS.values())))
+        for key, time_max_digit in enumerate(time_max_digits):
+            current_value = current_time_pointer_reversed[key]
+            if current_value > time_max_digit:
+                current_value = 0
+                if (key + 1) < len(self.TIME_TABLE_KEYS):
+                    current_time_pointer_reversed[key + 1] += 1
+            nearest_time_pointer.append(current_value)
+        nearest_time_pointer = list(reversed(nearest_time_pointer))
+        return nearest_time_pointer
+
     def get_next_pointer(self, *current_pointer):
         """\
         Returns the nearest next pointer for the counter.
@@ -403,20 +425,10 @@ class SimpleCounter():
 
         self._wait_for_unlock_rw()
 
-        next_time_pointer = []
-        current_time_pointer_reversed = list(reversed(current_pointer))
-        current_time_pointer_reversed[0] += 1
-        time_max_digits = list(reversed(list(self.TIME_TABLE_KEYS.values())))
-        for key, time_max_digit in enumerate(time_max_digits):
-            current_value = current_time_pointer_reversed[key]
-            if current_value > time_max_digit:
-                current_value = 0
-                if (key + 1) < len(self.TIME_TABLE_KEYS):
-                    current_time_pointer_reversed[key + 1] += 1
-            next_time_pointer.append(current_value)
-        next_time_pointer = list(reversed(next_time_pointer))
+        # We find the nearest possible time after the current one
+        nearest_time_pointer = self._get_nearest_time_pointer(*current_pointer)
 
-        # next_time_pointer = current_time_pointer + 1
+        # nearest_time_pointer = current_time_pointer + 1
 
         def get_first(time_table_node):
             if type(time_table_node) == set:
@@ -447,7 +459,7 @@ class SimpleCounter():
 
         time_table = CounterDict(self.time_table, list(reversed(time_max_digits)))
         try:
-            out = get_nearest(time_table, next_time_pointer)
+            out = get_nearest(time_table, nearest_time_pointer)
         except KeyError:
             out = get_first(time_table)
         return out

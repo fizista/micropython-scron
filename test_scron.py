@@ -719,34 +719,41 @@ class TestSimpleCRON(unittest.TestCase):
         self.assertEqual(sc._get_time_change_correction(1000), 1000)
 
         sc._get_time_change_pointer = lambda: 400
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-100)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 100)
 
         sc._get_time_change_pointer = lambda: 500
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-200)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 200)
 
         sc._get_time_change_pointer = lambda: 600
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-300)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 300)
 
         sc._get_time_change_pointer = lambda: 700
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-400)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 400)
 
         sc._get_time_change_pointer = lambda: 800
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-500)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 500)
 
         sc._get_time_change_pointer = lambda: 900
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-600)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 600)
 
         sc._get_time_change_pointer = lambda: 1000
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-700)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 700)
 
         sc._get_time_change_pointer = lambda: 100
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-800)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 800)
 
         sc._get_time_change_pointer = lambda: 200
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-900)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 900)
 
         sc._get_time_change_pointer = lambda: 299
-        self.assertEqual(sc._get_time_change_correction(1000), 1000-999)
+        self.assertEqual(sc._get_time_change_correction(1000), 1000 - 999)
+
+    def test__get_nearest_time_pointer(self):
+        self.assertEqual(list(self.simple_cron._get_nearest_time_pointer(*[0, 0, 0, 0])), [0, 0, 0, 1])
+        self.assertEqual(list(self.simple_cron._get_nearest_time_pointer(*[0, 0, 0, 59])), [0, 0, 1, 0])
+        self.assertEqual(list(self.simple_cron._get_nearest_time_pointer(*[0, 0, 59, 59])), [0, 1, 0, 0])
+        self.assertEqual(list(self.simple_cron._get_nearest_time_pointer(*[0, 23, 59, 59])), [1, 0, 0, 0])
+        self.assertEqual(list(self.simple_cron._get_nearest_time_pointer(*[6, 23, 59, 59])), [0, 0, 0, 0])
 
 
 class TestDecoratorsCRON(unittest.TestCase):
