@@ -426,43 +426,59 @@ class SimpleCounter():
         self._wait_for_unlock_rw()
 
         # We find the nearest possible time after the current one
-        nearest_time_pointer = self._get_nearest_time_pointer(*current_pointer)
+        next_time_pointer = self._get_nearest_time_pointer(*current_pointer)
 
-        # nearest_time_pointer = current_time_pointer + 1
+        def get_first(time_table_node_base):
 
-        def get_first(time_table_node):
-            if type(time_table_node) == set:
-                return tuple()
-            key, value = next(iter(time_table_node.items()))
-            if type(value) == set:
-                return (key,)
-            else:
-                return (key,) + get_first(value)
+            max_level = len(self.TIME_TABLE_KEYS)
+            time_table_node = time_table_node_base
+            out_value = tuple()
+            for level in range(max_level + 1):
+                if type(time_table_node) == set:
+                    break
+                key, time_table_node = next(iter(time_table_node.items()))
+                out_value += (key,)
+            return out_value
 
-        def get_nearest(time_table_node, next_time_pointer):
-            try:
-                current_value = next_time_pointer[0]
-            except IndexError:
-                return tuple()
+        time_max_digits = list(self.TIME_TABLE_KEYS.values())
+        time_table_base = CounterDict(self.time_table, time_max_digits)
+        
+        max_level = len(self.TIME_TABLE_KEYS)
+        time_table_node = time_table_base
+        time_table_parts = [time_table_base]
+        out_value = tuple()
+        level = 0
+        while True:
+            current_value = next_time_pointer[level]
             for next_value, time_table_value in time_table_node.items():
                 if next_value > current_value:
-                    return (next_value,) + get_first(time_table_value)
+                    out_value += (next_value,) + get_first(time_table_value)
+                    return out_value
                 elif next_value == current_value:
-                    try:
-                        return (next_value,) + get_nearest(time_table_value, next_time_pointer[1:])
-                    except KeyError:
-                        continue
+                    out_value += (next_value,)
+                    time_table_node = time_table_value
+                    time_table_parts.append(time_table_value)
+                    level += 1
+                    break
                 else:
                     continue
+            else:
+                if (level - 1) == -1:
+                    return get_first(time_table_base)
+                if next_time_pointer[level - 1] == list(self.TIME_TABLE_KEYS.values())[level - 1]:
+                    next_time_pointer[level - 1] = 0
+                else:
+                    next_time_pointer[level - 1] = next_time_pointer[level - 1] + 1
+                next_time_pointer[level:] = [0] * len(next_time_pointer[level:])
+                out_value = out_value[:-1]
+                level -= 1
+                time_table_node = time_table_parts[level]
+                del time_table_parts[level:]
 
-            raise KeyError()
+            if len(out_value) == max_level:
+                return out_value
 
-        time_table = CounterDict(self.time_table, list(reversed(time_max_digits)))
-        try:
-            out = get_nearest(time_table, nearest_time_pointer)
-        except KeyError:
-            out = get_first(time_table)
-        return out
+        raise Exception('???')
 
     def run_callbacks(self, *global_current_pointer):
         """\
