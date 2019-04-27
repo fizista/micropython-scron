@@ -40,6 +40,7 @@ class SimpleCRON(SimpleCRONBase):
         :return: None
         """
         super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds, removable=removable)
+        self._first_step()
 
     def get_current_pointer(self, _localtime=None):
         """
