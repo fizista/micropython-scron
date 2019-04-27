@@ -309,32 +309,43 @@ class SimpleCounter():
             if not self.callbacks[callback_name][1]:
                 raise Exception('This callback cannot be removed!')
 
-        def part_remove(time_table_node):
-            if type(time_table_node) is set:
-                try:
-                    time_table_node.remove(callback_name)
-                    if len(time_table_node) == 0:
-                        del time_table_node
-                        return
-                    return time_table_node
-                except KeyError:
-                    return time_table_node
+        max_level = len(self.TIME_TABLE_KEYS)
+        # [ (time_table_part, <keys to check>, <current key>) ]
+        time_table_parts = [[self.time_table, list(self.time_table.keys()), None]]
+        while len(time_table_parts) > 0:
+            if time_table_parts[-1][2] is None:
+                if len(time_table_parts[-1][1]) > 0:
+                    current_key = time_table_parts[-1][1].pop()
+                    current_key_init = True
+                else:
+                    del time_table_parts[-1]
+            else:
+                current_key = time_table_parts[-1][2]
+                current_key_init = False
 
-            if len(time_table_node) == 0:
-                del time_table_node
-                return
+            current_value = time_table_parts[-1][0][current_key]
 
-            for time_table_key in list(time_table_node.keys()):
-                part_out = part_remove(time_table_node[time_table_key])
-                if not part_out:
-                    del time_table_node[time_table_key]
+            if current_key_init:
+                if type(current_value) is set:
+                    if callback_name in current_value:
+                        current_value.remove(callback_name)
+                        if len(current_value) == 0:
+                            del time_table_parts[-1][0][current_key]
+                    if len(time_table_parts[-1][1]) > 0:
+                        time_table_parts[-1][2] = None
+                    else:
+                        del time_table_parts[-1]
+                else:
+                    time_table_parts[-1][2] = current_key
+                    time_table_parts.append([current_value, list(current_value.keys()), None])
 
-            return time_table_node
-
-        self.time_table = part_remove(self.time_table)
-
-        if self.time_table is None:
-            self.time_table = OrderedDict()
+            else:
+                if len(current_value) == 0:
+                    del time_table_parts[-1][0][current_key]
+                if len(time_table_parts[-1][1]) > 0:
+                    time_table_parts[-1][2] = None
+                else:
+                    del time_table_parts[-1]
 
         self.callbacks.pop(callback_name)
         self.callbacks_memory.pop(callback_name)
@@ -354,7 +365,6 @@ class SimpleCounter():
             # We're checking to see if we can remove it.
             if force or data[1]:
                 to_remove.append(callback_name)
-        callback_names = self.callbacks.keys()
         for callback_name in to_remove:
             self.remove(callback_name, force)
 
@@ -442,7 +452,7 @@ class SimpleCounter():
 
         time_max_digits = list(self.TIME_TABLE_KEYS.values())
         time_table_base = CounterDict(self.time_table, time_max_digits)
-        
+
         max_level = len(self.TIME_TABLE_KEYS)
         time_table_node = time_table_base
         time_table_parts = [time_table_base]
