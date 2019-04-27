@@ -261,23 +261,55 @@ class SimpleCounter():
                 )
             )
 
-        def insert_part(time_table_node, level=0):
-            if level == len(time_steps_validated):
-                time_table_node.add(callback_name)
-                return time_table_node
+        max_level = len(self.TIME_TABLE_KEYS)
+        # [ (time_table_part, <keys to check>, <current key>) ]
+        time_table_parts = [[self.time_table, time_steps_validated[0][:], None]]
 
-            for time_step_validated in time_steps_validated[level]:
-                if time_step_validated not in time_table_node:
-                    if level == (len(time_steps_validated) - 1):
-                        time_table_node[time_step_validated] = set()
+        while True:
+            level = len(time_table_parts) - 1
+            if time_table_parts[-1][2] is None:
+                if len(time_table_parts[-1][1]) > 0:
+                    current_key = time_table_parts[-1][1].pop()
+                    current_key_init = True
+                else:
+                    del time_table_parts[-1]
+                    continue
+            else:
+                current_key = time_table_parts[-1][2]
+                current_key_init = False
+
+            if current_key not in time_table_parts[-1][0]:
+                if level < (max_level - 1):
+                    time_table_parts[-1][0][current_key] = OrderedDict()
+                else:
+                    time_table_parts[-1][0][current_key] = set()
+                dict_sorted = OrderedDict(sorted(time_table_parts[-1][0].items()))
+                time_table_parts[-1][0].clear()
+                time_table_parts[-1][0].update(dict_sorted)
+                del dict_sorted
+
+            current_value = time_table_parts[-1][0][current_key]
+
+            if current_key_init:
+                if type(current_value) is set:
+                    current_value.add(callback_name)
+
+                    if len(time_table_parts[-1][1]) > 0:
+                        time_table_parts[-1][2] = None
                     else:
-                        time_table_node[time_step_validated] = OrderedDict()
+                        del time_table_parts[-1]
+                else:
+                    time_table_parts[-1][2] = current_key
+                    time_table_parts.append([current_value, time_steps_validated[level + 1][:], None])
 
-                time_table_node[time_step_validated] = insert_part(time_table_node[time_step_validated], level + 1)
-
-            return OrderedDict(sorted(time_table_node.items()))
-
-        self.time_table = insert_part(self.time_table)
+            else:
+                if len(time_table_parts[-1][1]) > 0:
+                    time_table_parts[-1][2] = None
+                else:
+                    if len(time_table_parts) == 1:
+                        break
+                    else:
+                        del time_table_parts[-1]
 
         self.callbacks[callback_name] = (callback, removable)
         self.callbacks_memory[callback_name] = {}
@@ -319,6 +351,7 @@ class SimpleCounter():
                     current_key_init = True
                 else:
                     del time_table_parts[-1]
+                    continue
             else:
                 current_key = time_table_parts[-1][2]
                 current_key_init = False
