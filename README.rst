@@ -73,7 +73,11 @@ and then upload the library to the device, e.g. using the following script:
 
     ./flash-byte.sh
 
+**Important!** An even better solution is to integrate this module into the firmware.
+The module takes up much less RAM.
 
+To do this, copy the :python:`scron` module to :bash:`micropython/ports/esp8266/modules`.
+Then compile the sources, and upload them to your device.
 
 Simple examples
 ###############
