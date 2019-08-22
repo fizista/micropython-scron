@@ -1,6 +1,6 @@
 import unittest
 from scron.week import SimpleCRON
-from scron.scount import CounterDict, merge_tree
+from scron.helpers import CounterDict, merge_tree
 from scron.decorators import run_times, call_counter, time_since_last_call, successfully_run_times
 
 try:

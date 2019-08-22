@@ -4,16 +4,7 @@
 from machine import Timer
 from utime import localtime, sleep_ms, time, ticks_ms
 
-try:
-    from utime import mktime
-except:
-    # micropython Unix port
-    from time import mktime
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ucollections import OrderedDict
+from scron.helpers import OrderedDict, mktime
 
 from scron.base import SimpleCRONBase
 

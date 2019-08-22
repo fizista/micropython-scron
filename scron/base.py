@@ -4,20 +4,7 @@
 from machine import Timer
 from utime import localtime, sleep_ms, time, ticks_ms
 
-try:
-    from utime import mktime
-except:
-    # micropython Unix port
-    from time import mktime
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ucollections import OrderedDict
-
 from scron.scount import SimpleCounter
-
-WILDCARD = SimpleCounter.WILDCARD_VALUE
 
 
 class SimpleCRONBase(SimpleCounter):
@@ -110,16 +97,6 @@ class SimpleCRONBase(SimpleCounter):
         super(SimpleCRONBase, self).remove(callback_name, force)
         self._first_step()
 
-    def remove_all(self, force=False):
-        """\
-        Removes all calls from the counters.
-
-        Stops the countdown to the nearest callback.
-
-        :param force: force removal of the callback.
-        """
-        super(SimpleCRONBase, self).remove_all(force)
-
     def _wait_for_unlock_rw(self):
         """\
         Returns the current pointer for the counter.
@@ -131,4 +108,3 @@ class SimpleCRONBase(SimpleCounter):
             if not self._lock_rw:
                 return
         raise Exception('Too long to wait for the lock to be removed!')
-
