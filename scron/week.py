@@ -58,17 +58,6 @@ class SimpleCRON(SimpleCRONBase):
         """
         return super(SimpleCRON, self).get_next_pointer(weekday, hour, minute, second)
 
-    def run_callbacks(self, weekday, hour, minute, second):
-        """
-        Runs all callbacks for a given pointer.
-
-        :param weekday: 0-6, 0=monday,6=sunday
-        :param hour: 0-23
-        :param minute: 0-59
-        :param second: 0-59
-        """
-        return super(SimpleCRON, self).run_callbacks(weekday, hour, minute, second)
-
     def next_step(self, *last_time_pointer):
         """
         Returns the generated function for the timer.
@@ -119,5 +108,15 @@ class SimpleCRON(SimpleCRONBase):
 
         return _next_step
 
+    def run_callbacks(self, weekday, hour, minute, second):
+        """
+        Runs all callbacks for a given pointer.
+
+        :param weekday: 0-6, 0=monday,6=sunday
+        :param hour: 0-23
+        :param minute: 0-59
+        :param second: 0-59
+        """
+        return super(SimpleCRON, self).run_callbacks(weekday, hour, minute, second)
 
 simple_cron = SimpleCRON()

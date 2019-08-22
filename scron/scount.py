@@ -80,6 +80,34 @@ class SimpleCounter():
         except TypeError:
             return [self._validate_value(input_name, input, max_digit)]
 
+    def _get_nearest_time_pointer(self, *current_pointer):
+        """
+        Returns time pointer + one smallest step.
+
+        :param pointer: index 0 -> highest counter
+        :return:
+        """
+        # We find the nearest possible time after the current one
+        nearest_time_pointer = []
+        current_time_pointer_reversed = list(reversed(current_pointer))
+        current_time_pointer_reversed[0] += 1
+        time_max_digits = list(reversed(list(self.TIME_TABLE_KEYS.values())))
+        for key, time_max_digit in enumerate(time_max_digits):
+            current_value = current_time_pointer_reversed[key]
+            if current_value > time_max_digit:
+                current_value = 0
+                if (key + 1) < len(self.TIME_TABLE_KEYS):
+                    current_time_pointer_reversed[key + 1] += 1
+            nearest_time_pointer.append(current_value)
+        nearest_time_pointer = list(reversed(nearest_time_pointer))
+        return nearest_time_pointer
+
+    def _wait_for_unlock_rw(self):
+        """\
+        Returns the current pointer for the counter.
+        """
+        raise NotImplementedError()
+
     def add(self, callback_name, callback, *time_steps, removable=True):
         """\
         Adds an entry to the current queue.
@@ -164,106 +192,6 @@ class SimpleCounter():
         """
         return callback_name in self.callbacks
 
-    def remove(self, callback_name, force=False, _lock=True):
-        """\
-        Removes from the counters a callback that occurs under ID callback_name.
-
-        :param callback_name: callback name ID
-        :param force: force removal of the callback.
-        :return:
-        """
-        if callback_name not in self.callbacks:
-            return
-
-        # Imposing a blockade of changes on the callback database.
-        self._lock_rw = _lock
-
-        if not force:
-            if not self.callbacks[callback_name][1]:
-                raise Exception('This callback cannot be removed!')
-
-        max_level = len(self.TIME_TABLE_KEYS)
-        # [ (time_table_part, <keys to check>, <current key>) ]
-        time_table_parts = [[self.time_table, list(self.time_table.keys()), None]]
-        while len(time_table_parts) > 0:
-            if time_table_parts[-1][2] is None:
-                if len(time_table_parts[-1][1]) > 0:
-                    current_key = time_table_parts[-1][1].pop()
-                    current_key_init = True
-                else:
-                    del time_table_parts[-1]
-                    continue
-            else:
-                current_key = time_table_parts[-1][2]
-                current_key_init = False
-
-            current_value = time_table_parts[-1][0][current_key]
-
-            if current_key_init:
-                if type(current_value) is set:
-                    if callback_name in current_value:
-                        current_value.remove(callback_name)
-                        if len(current_value) == 0:
-                            del time_table_parts[-1][0][current_key]
-                    if len(time_table_parts[-1][1]) > 0:
-                        time_table_parts[-1][2] = None
-                    else:
-                        del time_table_parts[-1]
-                else:
-                    time_table_parts[-1][2] = current_key
-                    time_table_parts.append([current_value, list(current_value.keys()), None])
-
-            else:
-                if len(current_value) == 0:
-                    del time_table_parts[-1][0][current_key]
-                if len(time_table_parts[-1][1]) > 0:
-                    time_table_parts[-1][2] = None
-                else:
-                    del time_table_parts[-1]
-
-        self.callbacks.pop(callback_name)
-        self.callbacks_memory.pop(callback_name)
-
-        # Removal of the blockade of changes in the callback database.
-        self._lock_rw = False
-
-    def remove_all(self, force=False):
-        """\
-        Removes all calls from the counters.
-
-        :param force: force removal of the callback.
-        :return:
-        """
-        to_remove = []
-        for callback_name, data in self.callbacks.items():
-            # We're checking to see if we can remove it.
-            if force or data[1]:
-                to_remove.append(callback_name)
-        for callback_name in to_remove:
-            self.remove(callback_name, force)
-
-    def list(self, _time_table_node=None, _prev_data=None):
-        """\
-        Returns the generator containing full and ordered information about all steps.
-
-        :param _time_table_node: internal variable
-        :param _prev_data: internal variable
-        :return:
-        """
-        self._wait_for_unlock_rw()
-
-        if type(_time_table_node) is set:
-            yield _prev_data + (_time_table_node,)
-        else:
-            if _prev_data == None:
-                _prev_data = tuple()
-
-            if _time_table_node == None:
-                _time_table_node = self.time_table
-
-            for time_table_key, time_table_value in _time_table_node.items():
-                yield from self.list(time_table_value, _prev_data + (time_table_key,))
-
     def get_current_pointer(self):
         """\
         Returns the current pointer for the counter.
@@ -273,28 +201,6 @@ class SimpleCounter():
         :return: tuple(<highest counter pointer>, ...)
         """
         raise NotImplementedError()
-
-    def _get_nearest_time_pointer(self, *current_pointer):
-        """
-        Returns time pointer + one smallest step.
-
-        :param pointer: index 0 -> highest counter
-        :return:
-        """
-        # We find the nearest possible time after the current one
-        nearest_time_pointer = []
-        current_time_pointer_reversed = list(reversed(current_pointer))
-        current_time_pointer_reversed[0] += 1
-        time_max_digits = list(reversed(list(self.TIME_TABLE_KEYS.values())))
-        for key, time_max_digit in enumerate(time_max_digits):
-            current_value = current_time_pointer_reversed[key]
-            if current_value > time_max_digit:
-                current_value = 0
-                if (key + 1) < len(self.TIME_TABLE_KEYS):
-                    current_time_pointer_reversed[key + 1] += 1
-            nearest_time_pointer.append(current_value)
-        nearest_time_pointer = list(reversed(nearest_time_pointer))
-        return nearest_time_pointer
 
     def get_next_pointer(self, *current_pointer):
         """\
@@ -364,6 +270,106 @@ class SimpleCounter():
 
         raise Exception('???')
 
+    def list(self, _time_table_node=None, _prev_data=None):
+        """\
+        Returns the generator containing full and ordered information about all steps.
+
+        :param _time_table_node: internal variable
+        :param _prev_data: internal variable
+        :return:
+        """
+        self._wait_for_unlock_rw()
+
+        if type(_time_table_node) is set:
+            yield _prev_data + (_time_table_node,)
+        else:
+            if _prev_data == None:
+                _prev_data = tuple()
+
+            if _time_table_node == None:
+                _time_table_node = self.time_table
+
+            for time_table_key, time_table_value in _time_table_node.items():
+                yield from self.list(time_table_value, _prev_data + (time_table_key,))
+
+    def remove_all(self, force=False):
+        """\
+        Removes all calls from the counters.
+
+        :param force: force removal of the callback.
+        :return:
+        """
+        to_remove = []
+        for callback_name, data in self.callbacks.items():
+            # We're checking to see if we can remove it.
+            if force or data[1]:
+                to_remove.append(callback_name)
+        for callback_name in to_remove:
+            self.remove(callback_name, force)
+
+    def remove(self, callback_name, force=False, _lock=True):
+        """\
+        Removes from the counters a callback that occurs under ID callback_name.
+
+        :param callback_name: callback name ID
+        :param force: force removal of the callback.
+        :return:
+        """
+        if callback_name not in self.callbacks:
+            return
+
+        # Imposing a blockade of changes on the callback database.
+        self._lock_rw = _lock
+
+        if not force:
+            if not self.callbacks[callback_name][1]:
+                raise Exception('This callback cannot be removed!')
+
+        max_level = len(self.TIME_TABLE_KEYS)
+        # [ (time_table_part, <keys to check>, <current key>) ]
+        time_table_parts = [[self.time_table, list(self.time_table.keys()), None]]
+        while len(time_table_parts) > 0:
+            if time_table_parts[-1][2] is None:
+                if len(time_table_parts[-1][1]) > 0:
+                    current_key = time_table_parts[-1][1].pop()
+                    current_key_init = True
+                else:
+                    del time_table_parts[-1]
+                    continue
+            else:
+                current_key = time_table_parts[-1][2]
+                current_key_init = False
+
+            current_value = time_table_parts[-1][0][current_key]
+
+            if current_key_init:
+                if type(current_value) is set:
+                    if callback_name in current_value:
+                        current_value.remove(callback_name)
+                        if len(current_value) == 0:
+                            del time_table_parts[-1][0][current_key]
+                    if len(time_table_parts[-1][1]) > 0:
+                        time_table_parts[-1][2] = None
+                    else:
+                        del time_table_parts[-1]
+                else:
+                    time_table_parts[-1][2] = current_key
+                    time_table_parts.append([current_value, list(current_value.keys()), None])
+
+            else:
+                if len(current_value) == 0:
+                    del time_table_parts[-1][0][current_key]
+                if len(time_table_parts[-1][1]) > 0:
+                    time_table_parts[-1][2] = None
+                else:
+                    del time_table_parts[-1]
+
+        self.callbacks.pop(callback_name)
+        self.callbacks_memory.pop(callback_name)
+
+        # Removal of the blockade of changes in the callback database.
+        self._lock_rw = False
+
     def run_callbacks(self, *global_current_pointer):
         """\
         Runs all callbacks for a given pointer.
@@ -390,9 +396,3 @@ class SimpleCounter():
                     get_exactly_stack.append((time_table_node[self.WILDCARD_VALUE], current_pointer[1:]))
                 if current_pointer[0] in time_table_node:
                     get_exactly_stack.append((time_table_node[current_pointer[0]], current_pointer[1:]))
-
-    def _wait_for_unlock_rw(self):
-        """\
-        Returns the current pointer for the counter.
-        """
-        raise NotImplementedError()

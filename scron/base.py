@@ -13,7 +13,7 @@ class SimpleCRONBase(SimpleCounter):
         super(SimpleCRONBase, self).__init__(*args, **kwargs)
         self.timer = None
 
-    def sync_time(self):
+    def _sync_time(self):
         "Synchronizes SimpleCRON with time."
         self._set_time_change(self._estimate_time_change())
         self._first_step()
@@ -50,6 +50,44 @@ class SimpleCRONBase(SimpleCounter):
         else:
             return out
 
+    def _first_step(self):
+        if self.timer == None:
+            return
+        self.timer.deinit()
+        if len(self.callbacks) > 0:
+            next_pointer = self.get_next_pointer(*self.get_current_pointer())
+            if next_pointer == None:
+                # Possible when the callback is removed during operation.
+                if len(self.callbacks) > 0:
+                    # This situation should not happen. If there is a callback, then the next indicator must exist.
+                    raise Exception('scron bug,1')
+                return
+            self.next_step(*next_pointer)(self.timer)
+
+    def _wait_for_unlock_rw(self):
+        """\
+        Waiting for the lock to be removed
+        """
+        # We wait 5 seconds, if the lock is not removed then we emit an error.
+        from utime import sleep_ms
+        for i in range(5000):
+            sleep_ms(1)
+            if not self._lock_rw:
+                return
+        raise Exception('Too long to wait for the lock to be removed!')
+
+    def remove(self, callback_name, force=False, _lock=True):
+        """
+        Removes from the counters a callback that occurs under ID callback_name.
+
+        Recalculates the nearest callback to call.
+
+        :param force: force removal of the callback.
+        :param callback_name: callback name
+        """
+        super(SimpleCRONBase, self).remove(callback_name, force, _lock)
+        self._first_step()
+
     def run(self, timer_id=1):
         """
         Initiates a list of tasks and reserves one hardware timer.
@@ -69,42 +107,4 @@ class SimpleCRONBase(SimpleCounter):
         # If not, we will get an error: OSError: 261
         timer.init(period=1, mode=Timer.ONE_SHOT, callback=lambda t: None)
         self.timer = timer
-        self.sync_time()
-
-    def _first_step(self):
-        if self.timer == None:
-            return
-        self.timer.deinit()
-        if len(self.callbacks) > 0:
-            next_pointer = self.get_next_pointer(*self.get_current_pointer())
-            if next_pointer == None:
-                # Possible when the callback is removed during operation.
-                if len(self.callbacks) > 0:
-                    # This situation should not happen. If there is a callback, then the next indicator must exist.
-                    raise Exception('scron bug,1')
-                return
-            self.next_step(*next_pointer)(self.timer)
-
-    def remove(self, callback_name, force=False):
-        """
-        Removes from the counters a callback that occurs under ID callback_name.
-
-        Recalculates the nearest callback to call.
-
-        :param force: force removal of the callback.
-        :param callback_name: callback name
-        """
-        super(SimpleCRONBase, self).remove(callback_name, force)
-        self._first_step()
-
-    def _wait_for_unlock_rw(self):
-        """\
-        Returns the current pointer for the counter.
-        """
-        # We wait 5 seconds, if the lock is not removed then we emit an error.
-        from utime import sleep_ms
-        for i in range(5000):
-            sleep_ms(1)
-            if not self._lock_rw:
-                return
-        raise Exception('Too long to wait for the lock to be removed!')
+        self._sync_time()
