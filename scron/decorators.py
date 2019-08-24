@@ -72,10 +72,10 @@ class call_counter:
         self.callback = callback
 
     def __call__(self, scorn_instance, callback_name, pointer, memory):
-        if call_counter.ID in memory:
-            memory[call_counter.ID] += 1
+        if self.ID in memory:
+            memory[self.ID] += 1
         else:
-            memory[call_counter.ID] = 1
+            memory[self.ID] = 1
         return self.callback(scorn_instance, callback_name, pointer, memory)
 
 
