@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+
 OUTPUT=./build
 
 if [ -d "$OUTPUT" ]; then

@@ -79,6 +79,8 @@ The module takes up much less RAM.
 To do this, copy the :python:`scron` module to :bash:`micropython/ports/esp8266/modules`.
 Then compile the sources, and upload them to your device.
 
+
+
 Simple examples
 ###############
 
@@ -220,7 +222,18 @@ Then run the tests:
 
     ./run_tests.sh
 
-pip install pyserial
+Testing directly on the device:
+
+.. code-block:: bash
+
+    pip install pyserial adafruit-ampy
+
+    ./run_tests_esp.sh upload_combined
+    ./run_tests_esp.sh run /dev/ttyUSB0
+
+    ./run_tests_esp.sh upload
+    ./run_tests_esp.sh run /dev/ttyUSB0
+
 
 *******************
 Support and license
