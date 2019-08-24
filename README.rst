@@ -89,6 +89,10 @@ Simple code to run every second:
 .. code-block:: python
 
     from scron.week import simple_cron
+    # OR
+    # SimpleCRON single-class library, with minimal recursion depth.
+    # This is mainly for ESP8266, because we have very few possible recursions.
+    from scron.cweek import simple_cron
     # Depending on the device, you need to add a task that
     # will be started at intervals shorter than the longest
     # time the timer can count.
