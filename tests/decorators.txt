@@ -1,0 +1,19 @@
+from tests.decorators import *
+RUN (2000, 1, 1, 0, 0, 5, 5, 1)
+[(-1, -1, -1, -1, {'test_runtimes_x6', 'test_suc_runtimes_x3'}), (-1, -1, -1, 10, {'test_time_since_last_call'}), (-1, -1, -1, 19, {'test_time_since_last_call'})]
+RETURN: test_runtimes_x6          1 sec. 8
+RETURN: test_suc_runtimes_x3      1 sec. 8
+RETURN: test_runtimes_x6          2 sec. 9
+RETURN: test_suc_runtimes_x3      2 sec. 9
+RETURN: test_time_since_last_call 1 sec. 10
+RETURN: test_runtimes_x6          3 sec. 10
+RETURN: test_suc_runtimes_x3      3 sec. 10
+RETURN: test_runtimes_x6          4 sec. 11
+RETURN: test_suc_runtimes_x3      4 sec. 11
+RETURN: test_runtimes_x6          5 sec. 12
+RETURN: test_suc_runtimes_x3      5 sec. 12
+RETURN: test_runtimes_x6          6 sec. 13
+RETURN: test_suc_runtimes_x3      6 sec. 13
+RETURN: test_time_since_last_call 2 sec. 19
+END (2000, 1, 1, 0, 0, 28, 5, 1)
+>>> 
