@@ -191,7 +191,7 @@ Important notes:
 * If there are several functions to run at a given time, then they are
   started without a specific order.
 * If the time has been changed (time synchronization with the network,
-  own time change), run the :python:`simple_cron.sync_time()` function,
+  own time change), run the :python:`simple_cron._sync_time()` function,
   which will set a specific point in time. Without this setting,
   it may happen that some callbacks will not be started.
 
