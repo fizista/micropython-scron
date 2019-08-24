@@ -1,5 +1,6 @@
 # Copyright 2019 Wojciech Banaś
 # This code is released under the GPL3 or individual commercial license.
+import gc
 
 from machine import Timer
 from utime import localtime, sleep_ms, time, ticks_ms
@@ -30,6 +31,7 @@ class SimpleCRON(SimpleCRONBase):
         :param removable: boolean if false, then the entry cannot normally be deleted
         :return: None
         """
+        gc.collect()
         super(SimpleCRON, self).add(callback_name, callback, weekdays, hours, minutes, seconds, removable=removable)
         self._first_step()
 
@@ -117,6 +119,8 @@ class SimpleCRON(SimpleCRONBase):
         :param minute: 0-59
         :param second: 0-59
         """
+        gc.collect()
         return super(SimpleCRON, self).run_callbacks(weekday, hour, minute, second)
+        gc.collect()
 
 simple_cron = SimpleCRON()
