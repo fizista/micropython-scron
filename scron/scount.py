@@ -19,6 +19,10 @@ class SimpleCounter():
 
     TIME_TABLE_KEYS = OrderedDict()
 
+    # A list of functions that process the captured exception, received from the running callback.
+    # processor_exception_function(exception_instance)
+    callback_exception_processors = [lambda e: print('Callback EXCEPTION: %s' % e)]
+
     def __init__(self):
         self.time_table = OrderedDict()
         # callbacks = {<callback_name>: <callback>, ...}
@@ -26,6 +30,8 @@ class SimpleCounter():
         # callbacks_memory = {<callback_name>: {}, ...}
         self.callbacks_memory = {}
 
+    # #####################
+    # SCOUNT - START
     def _validate_value(self, input_name, value, max_digit):
         """\
         Validates the value. In the case of errors, throws an exception.
@@ -107,6 +113,9 @@ class SimpleCounter():
         Returns the current pointer for the counter.
         """
         raise NotImplementedError()
+
+    # SCOUNT - END
+    # #####################
 
     def add(self, callback_name, callback, *time_steps, removable=True):
         """\
@@ -385,12 +394,16 @@ class SimpleCounter():
             time_table_node, current_pointer = get_exactly_stack.pop()
             if type(time_table_node) == set:
                 for callback_name in time_table_node:
-                    self.callbacks[callback_name][0](
-                        self,
-                        callback_name,
-                        global_current_pointer,
-                        self.callbacks_memory[callback_name]
-                    )
+                    try:
+                        self.callbacks[callback_name][0](
+                            self,
+                            callback_name,
+                            global_current_pointer,
+                            self.callbacks_memory[callback_name]
+                        )
+                    except Exception as e:
+                        for processor in self.callback_exception_processors:
+                            processor(e)
             else:
                 if self.WILDCARD_VALUE in time_table_node:
                     get_exactly_stack.append((time_table_node[self.WILDCARD_VALUE], current_pointer[1:]))

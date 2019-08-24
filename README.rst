@@ -169,6 +169,21 @@ where:
 * :python:`memory` - Shared memory for this particular callback, between all calls.
   By default this is a dictionary.
 
+If for some reason a running callback throws an exception,
+then it is possible to process this event with special functions.
+The default exception processing function is print().
+
+To add new processing functions for callback exceptions, simply add them to the list below:
+
+.. code-block:: python
+
+    simple_cron.callback_exception_processors(processor_function)
+
+
+where:
+
+    processor_function is function(exception_instance)
+
 Important notes:
 ################
 
@@ -205,6 +220,7 @@ Then run the tests:
 
     ./run_tests.sh
 
+pip install pyserial
 
 *******************
 Support and license

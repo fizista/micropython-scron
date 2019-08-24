@@ -655,6 +655,40 @@ class TestSimpleCRON(unittest.TestCase):
         self.assertEqual(OUT, ['3'])
         OUT = []
 
+    def test_run_callbacks__exception(self):
+        self.simple_cron.remove_all()
+
+        OUT = []
+        EXCEPTIONS = []
+
+        def catch_exception(e):
+            EXCEPTIONS.append(e)
+
+        self.simple_cron.callback_exception_processors[0] = catch_exception
+
+        def x(data):
+            def y(*args, **kwargs):
+                OUT.append(data)
+                if data == 'e':
+                    raise Exception('E')
+
+            return y
+
+        self.simple_cron.run_callbacks(second=0, minute=0, hour=0, weekday=0)
+        self.assertEqual(OUT, [])
+        OUT = []
+
+        self.simple_cron.add(callback_name='1', callback=x('1'), seconds=2, minutes=2, hours=3, weekdays=6)  #
+        self.simple_cron.add(callback_name='e', callback=x('e'), seconds=2, minutes=2, hours=3, weekdays=6)  #
+        self.simple_cron.add(callback_name='2', callback=x('2'), seconds=2, minutes=2, hours=3, weekdays=6)  #
+
+        self.simple_cron.run_callbacks(second=2, minute=2, hour=3, weekday=6)
+        self.assertEqual(str(EXCEPTIONS[0]), 'E')
+        OUT = []
+        EXCEPTIONS = []
+
+        self.simple_cron.callback_exception_processors[0] = print
+
     def test_run_callbacks__wildcard(self):
         self.simple_cron.remove_all()
 
