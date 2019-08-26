@@ -30,10 +30,10 @@ function compile() {
     MP_FILE_PATH="${FILE_PATH%.*}.mpy"
 
     #mpy-cross -mno-unicode -o "$out_path" -s "$mp_path" "$FILE_PATH"
+    #mpy-cross -march=xtensa -X emit=native "$FILE_PATH" &>/dev/null || mpy-cross -march=xtensa "$FILE_PATH"
     mpy-cross "$FILE_PATH"
     mv "$MP_FILE_PATH" "$out_dir"
 }
-
 
 for file_path in ./scron/*.py
 do
