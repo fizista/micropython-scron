@@ -39,20 +39,12 @@
   <h1>Source code for scron.week</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright 2019 Wojciech Banaś</span>
 <span class="c1"># This code is released under the GPL3 or individual commercial license.</span>
+<span class="kn">import</span> <span class="nn">gc</span>
 
 <span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Timer</span>
 <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">sleep_ms</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">ticks_ms</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">mktime</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="c1"># micropython Unix port</span>
-    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">mktime</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ucollections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">scron.helpers</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">mktime</span>
 
 <span class="kn">from</span> <span class="nn">scron.base</span> <span class="k">import</span> <span class="n">SimpleCRONBase</span>
 
@@ -78,6 +70,7 @@
 <span class="sd">        :param removable: boolean if false, then the entry cannot normally be deleted</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRON</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">weekdays</span><span class="p">,</span> <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">removable</span><span class="o">=</span><span class="n">removable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_first_step</span><span class="p">()</span></div>
 
@@ -105,17 +98,6 @@
 <span class="sd">        :return: tuple(weekday, hour, minute, second)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRON</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_next_pointer</span><span class="p">(</span><span class="n">weekday</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="SimpleCRON.run_callbacks"><a class="viewcode-back" href="../../api.html#scron.week.SimpleCRON.run_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">run_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weekday</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Runs all callbacks for a given pointer.</span>
-
-<span class="sd">        :param weekday: 0-6, 0=monday,6=sunday</span>
-<span class="sd">        :param hour: 0-23</span>
-<span class="sd">        :param minute: 0-59</span>
-<span class="sd">        :param second: 0-59</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRON</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">run_callbacks</span><span class="p">(</span><span class="n">weekday</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SimpleCRON.next_step"><a class="viewcode-back" href="../../api.html#scron.week.SimpleCRON.next_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">last_time_pointer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -165,8 +147,20 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_the_same_callback</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">run_callbacks</span><span class="p">(</span><span class="o">*</span><span class="n">last_time_pointer</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">_next_step</span></div></div>
+        <span class="k">return</span> <span class="n">_next_step</span></div>
 
+<div class="viewcode-block" id="SimpleCRON.run_callbacks"><a class="viewcode-back" href="../../api.html#scron.week.SimpleCRON.run_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">run_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weekday</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs all callbacks for a given pointer.</span>
+
+<span class="sd">        :param weekday: 0-6, 0=monday,6=sunday</span>
+<span class="sd">        :param hour: 0-23</span>
+<span class="sd">        :param minute: 0-59</span>
+<span class="sd">        :param second: 0-59</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRON</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">run_callbacks</span><span class="p">(</span><span class="n">weekday</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div></div>
 
 <span class="n">simple_cron</span> <span class="o">=</span> <span class="n">SimpleCRON</span><span class="p">()</span>
 </pre></div>

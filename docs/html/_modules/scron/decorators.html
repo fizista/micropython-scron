@@ -111,10 +111,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scorn_instance</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">pointer</span><span class="p">,</span> <span class="n">memory</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">call_counter</span><span class="o">.</span><span class="n">ID</span> <span class="ow">in</span> <span class="n">memory</span><span class="p">:</span>
-            <span class="n">memory</span><span class="p">[</span><span class="n">call_counter</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="ow">in</span> <span class="n">memory</span><span class="p">:</span>
+            <span class="n">memory</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">memory</span><span class="p">[</span><span class="n">call_counter</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">memory</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">scorn_instance</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">pointer</span><span class="p">,</span> <span class="n">memory</span><span class="p">)</span></div>
 
 

@@ -40,166 +40,7 @@
 <span></span><span class="c1"># Copyright 2019 Wojciech Banaś</span>
 <span class="c1"># This code is released under the GPL3 or individual commercial license.</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-
-
-    <span class="k">def</span> <span class="nf">assert_dict</span><span class="p">(</span><span class="n">dict_a</span><span class="p">,</span> <span class="n">dict_b</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">dict_a</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">dict_b</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-
-
-    <span class="k">def</span> <span class="nf">repr_dict</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-        <span class="n">out_values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">out_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">([</span><span class="si">%s</span><span class="s1">])&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_values</span><span class="p">))</span>
-
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ucollections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-
-
-    <span class="c1"># micropython has problems with comparing dictionaries, so here is a workaround</span>
-    <span class="k">def</span> <span class="nf">assert_dict</span><span class="p">(</span><span class="n">dict_a</span><span class="p">,</span> <span class="n">dict_b</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-            <span class="k">return</span> \
-                <span class="n">d</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">dict_a</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;OrderedDict&#39;</span><span class="p">)</span><span class="o">.</span> \
-                    <span class="n">replace</span><span class="p">(</span><span class="n">dict_b</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;OrderedDict&#39;</span><span class="p">)</span><span class="o">.</span> \
-                    <span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-        <span class="n">norm_a</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dict_a</span><span class="p">))</span>
-        <span class="n">norm_b</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dict_b</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="n">norm_a</span> <span class="o">==</span> <span class="n">norm_b</span>
-
-
-    <span class="k">def</span> <span class="nf">repr_dict</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-        <span class="n">out_values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">out_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">({</span><span class="si">%s</span><span class="s1">})&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_values</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">merge_tree</span><span class="p">(</span><span class="n">tree_a</span><span class="p">,</span> <span class="n">tree_b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">    It connects two OrderDict trees into one.</span>
-
-<span class="sd">    Both trees must have the same number of branches. At the end of the branch, there must be an object of &quot;set&quot;.</span>
-
-<span class="sd">    :param tree_a: OrderDict</span>
-<span class="sd">    :param tree_b: OrderDict</span>
-<span class="sd">    :return: OrderDict_A + OrderDict_B</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tree_a</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">tree_b</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">tree_a</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">tree_b</span><span class="p">)</span>
-
-    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">tree_a</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tree_b</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
-    <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-
-    <span class="n">out</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tree_a</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tree_b</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_tree</span><span class="p">(</span><span class="n">tree_a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">tree_b</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tree_a</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_a</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tree_b</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree_b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">out</span>
-
-
-<span class="k">class</span> <span class="nc">CounterDict</span><span class="p">:</span>
-    <span class="n">WILDCARD_VALUE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count_table</span><span class="p">,</span> <span class="n">count_table_limits</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Tree decorator. Expands the input tree &quot;count_table&quot; into the expected structure/tree.</span>
-
-<span class="sd">        len(count_table_limits) == nesting level &quot;count_table&quot;.</span>
-
-<span class="sd">        Example:</span>
-<span class="sd">        count_table_limits = [2,4]</span>
-<span class="sd">        count_table = OrderDict([</span>
-<span class="sd">            (1, OrderDict([</span>
-<span class="sd">                    (3, set(&#39;1_3&#39;))</span>
-<span class="sd">                ])</span>
-<span class="sd">            ),</span>
-<span class="sd">            (2, OrderDict([</span>
-<span class="sd">                    (0, set(&#39;2_0&#39;))</span>
-<span class="sd">                    (4, set(&#39;2_4&#39;))</span>
-<span class="sd">                ])</span>
-<span class="sd">            )</span>
-<span class="sd">        ])</span>
-
-<span class="sd">        count_table.keys() &lt;= count_table_limits[0]</span>
-<span class="sd">        count_table[x].keys() &lt;= count_table_limits[1]</span>
-
-<span class="sd">        :param count_table: OrderDict</span>
-<span class="sd">        :param count_table_limits: list</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span> <span class="o">=</span> <span class="n">count_table</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span> <span class="o">=</span> <span class="n">count_table_limits</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">count_table_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Keys can have a maximum value of </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">count_table_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">key</span><span class="p">,</span> <span class="n">CounterDict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">:</span>
-                    <span class="n">value_combined</span> <span class="o">=</span> <span class="n">merge_tree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">])</span>
-                    <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value_combined</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="n">OrderedDict</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">CounterDict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">value</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">:</span>
-                    <span class="n">value_combined</span> <span class="o">=</span> <span class="n">merge_tree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">])</span>
-                    <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="n">value_combined</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_table</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">yield from</span> <span class="n">get_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__delattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">OrderedDict</span><span class="p">,</span> <span class="n">CounterDict</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">assert_dict</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">repr_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">scron.helpers</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">CounterDict</span>
 
 
 <span class="k">class</span> <span class="nc">SimpleCounter</span><span class="p">():</span>
@@ -217,6 +58,10 @@
 
     <span class="n">TIME_TABLE_KEYS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
+    <span class="c1"># A list of functions that process the captured exception, received from the running callback.</span>
+    <span class="c1"># processor_exception_function(exception_instance)</span>
+    <span class="n">callback_exception_processors</span> <span class="o">=</span> <span class="p">[</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Callback EXCEPTION: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)]</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="c1"># callbacks = {&lt;callback_name&gt;: &lt;callback&gt;, ...}</span>
@@ -224,6 +69,8 @@
         <span class="c1"># callbacks_memory = {&lt;callback_name&gt;: {}, ...}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span> <span class="o">=</span> <span class="p">{}</span>
 
+    <span class="c1"># #####################</span>
+    <span class="c1"># SCOUNT - START</span>
     <span class="k">def</span> <span class="nf">_validate_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">max_digit</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Validates the value. In the case of errors, throws an exception.</span>
@@ -277,6 +124,37 @@
             <span class="k">return</span> <span class="n">values</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate_value</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">max_digit</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_nearest_time_pointer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">current_pointer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns time pointer + one smallest step.</span>
+
+<span class="sd">        :param pointer: index 0 -&gt; highest counter</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We find the nearest possible time after the current one</span>
+        <span class="n">nearest_time_pointer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">current_time_pointer_reversed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">current_pointer</span><span class="p">))</span>
+        <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">time_max_digits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">time_max_digit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_max_digits</span><span class="p">):</span>
+            <span class="n">current_value</span> <span class="o">=</span> <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">current_value</span> <span class="o">&gt;</span> <span class="n">time_max_digit</span><span class="p">:</span>
+                <span class="n">current_value</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="p">):</span>
+                    <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">nearest_time_pointer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span>
+        <span class="n">nearest_time_pointer</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">nearest_time_pointer</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">nearest_time_pointer</span>
+
+    <span class="k">def</span> <span class="nf">_wait_for_unlock_rw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Returns the current pointer for the counter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="c1"># SCOUNT - END</span>
+    <span class="c1"># #####################</span>
 
     <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="o">*</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">removable</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
@@ -362,106 +240,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span>
 
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_lock</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Removes from the counters a callback that occurs under ID callback_name.</span>
-
-<span class="sd">        :param callback_name: callback name ID</span>
-<span class="sd">        :param force: force removal of the callback.</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">callback_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="c1"># Imposing a blockade of changes on the callback database.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span> <span class="o">=</span> <span class="n">_lock</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;This callback cannot be removed!&#39;</span><span class="p">)</span>
-
-        <span class="n">max_level</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="p">)</span>
-        <span class="c1"># [ (time_table_part, &lt;keys to check&gt;, &lt;current key&gt;) ]</span>
-        <span class="n">time_table_parts</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="kc">None</span><span class="p">]]</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">current_key</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-                    <span class="n">current_key_init</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">continue</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">current_key</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-                <span class="n">current_key_init</span> <span class="o">=</span> <span class="kc">False</span>
-
-            <span class="n">current_value</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">current_key_init</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">current_value</span><span class="p">:</span>
-                        <span class="n">current_value</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_key</span>
-                    <span class="n">time_table_parts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">current_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_value</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="kc">None</span><span class="p">])</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
-
-        <span class="c1"># Removal of the blockade of changes in the callback database.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Removes all calls from the counters.</span>
-
-<span class="sd">        :param force: force removal of the callback.</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># We&#39;re checking to see if we can remove it.</span>
-            <span class="k">if</span> <span class="n">force</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_time_table_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_prev_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Returns the generator containing full and ordered information about all steps.</span>
-
-<span class="sd">        :param _time_table_node: internal variable</span>
-<span class="sd">        :param _prev_data: internal variable</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_unlock_rw</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_time_table_node</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">_prev_data</span> <span class="o">+</span> <span class="p">(</span><span class="n">_time_table_node</span><span class="p">,)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_prev_data</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">_prev_data</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">_time_table_node</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">_time_table_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span>
-
-            <span class="k">for</span> <span class="n">time_table_key</span><span class="p">,</span> <span class="n">time_table_value</span> <span class="ow">in</span> <span class="n">_time_table_node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">time_table_value</span><span class="p">,</span> <span class="n">_prev_data</span> <span class="o">+</span> <span class="p">(</span><span class="n">time_table_key</span><span class="p">,))</span>
-
     <span class="k">def</span> <span class="nf">get_current_pointer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Returns the current pointer for the counter.</span>
@@ -471,28 +249,6 @@
 <span class="sd">        :return: tuple(&lt;highest counter pointer&gt;, ...)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_get_nearest_time_pointer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">current_pointer</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns time pointer + one smallest step.</span>
-
-<span class="sd">        :param pointer: index 0 -&gt; highest counter</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># We find the nearest possible time after the current one</span>
-        <span class="n">nearest_time_pointer</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">current_time_pointer_reversed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">current_pointer</span><span class="p">))</span>
-        <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">time_max_digits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">time_max_digit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_max_digits</span><span class="p">):</span>
-            <span class="n">current_value</span> <span class="o">=</span> <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">current_value</span> <span class="o">&gt;</span> <span class="n">time_max_digit</span><span class="p">:</span>
-                <span class="n">current_value</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="p">):</span>
-                    <span class="n">current_time_pointer_reversed</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">nearest_time_pointer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span>
-        <span class="n">nearest_time_pointer</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">nearest_time_pointer</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">nearest_time_pointer</span>
 
     <span class="k">def</span> <span class="nf">get_next_pointer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">current_pointer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
@@ -562,6 +318,106 @@
 
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;???&#39;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_time_table_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_prev_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Returns the generator containing full and ordered information about all steps.</span>
+
+<span class="sd">        :param _time_table_node: internal variable</span>
+<span class="sd">        :param _prev_data: internal variable</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_unlock_rw</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_time_table_node</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">_prev_data</span> <span class="o">+</span> <span class="p">(</span><span class="n">_time_table_node</span><span class="p">,)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_prev_data</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_prev_data</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">_time_table_node</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_time_table_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_table</span>
+
+            <span class="k">for</span> <span class="n">time_table_key</span><span class="p">,</span> <span class="n">time_table_value</span> <span class="ow">in</span> <span class="n">_time_table_node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">time_table_value</span><span class="p">,</span> <span class="n">_prev_data</span> <span class="o">+</span> <span class="p">(</span><span class="n">time_table_key</span><span class="p">,))</span>
+
+    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Removes all calls from the counters.</span>
+
+<span class="sd">        :param force: force removal of the callback.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># We&#39;re checking to see if we can remove it.</span>
+            <span class="k">if</span> <span class="n">force</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_lock</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Removes from the counters a callback that occurs under ID callback_name.</span>
+
+<span class="sd">        :param callback_name: callback name ID</span>
+<span class="sd">        :param force: force removal of the callback.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callback_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Imposing a blockade of changes on the callback database.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span> <span class="o">=</span> <span class="n">_lock</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;This callback cannot be removed!&#39;</span><span class="p">)</span>
+
+        <span class="n">max_level</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TIME_TABLE_KEYS</span><span class="p">)</span>
+        <span class="c1"># [ (time_table_part, &lt;keys to check&gt;, &lt;current key&gt;) ]</span>
+        <span class="n">time_table_parts</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_table</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="kc">None</span><span class="p">]]</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">current_key</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="n">current_key_init</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">current_key</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">current_key_init</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">current_value</span> <span class="o">=</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">current_key_init</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">set</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">current_value</span><span class="p">:</span>
+                        <span class="n">current_value</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_key</span>
+                    <span class="n">time_table_parts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">current_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_value</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="kc">None</span><span class="p">])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">current_key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">time_table_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">callback_name</span><span class="p">)</span>
+
+        <span class="c1"># Removal of the blockade of changes in the callback database.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span> <span class="o">=</span> <span class="kc">False</span>
+
     <span class="k">def</span> <span class="nf">run_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">global_current_pointer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
 <span class="sd">        Runs all callbacks for a given pointer.</span>
@@ -577,23 +433,21 @@
             <span class="n">time_table_node</span><span class="p">,</span> <span class="n">current_pointer</span> <span class="o">=</span> <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_table_node</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">callback_name</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span>
-                        <span class="bp">self</span><span class="p">,</span>
-                        <span class="n">callback_name</span><span class="p">,</span>
-                        <span class="n">global_current_pointer</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="p">[</span><span class="n">callback_name</span><span class="p">]</span>
-                    <span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_name</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span>
+                            <span class="bp">self</span><span class="p">,</span>
+                            <span class="n">callback_name</span><span class="p">,</span>
+                            <span class="n">global_current_pointer</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">callbacks_memory</span><span class="p">[</span><span class="n">callback_name</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">processor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_exception_processors</span><span class="p">:</span>
+                            <span class="n">processor</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
                     <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">time_table_node</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span><span class="p">],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
                 <span class="k">if</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">time_table_node</span><span class="p">:</span>
                     <span class="n">get_exactly_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">time_table_node</span><span class="p">[</span><span class="n">current_pointer</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">current_pointer</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-
-    <span class="k">def</span> <span class="nf">_wait_for_unlock_rw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Returns the current pointer for the counter.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
           </div>

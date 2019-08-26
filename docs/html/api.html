@@ -144,7 +144,7 @@
 
 <dl class="method">
 <dt id="scron.week.SimpleCRON.remove">
-<code class="descname">remove</code><span class="sig-paren">(</span><em>callback_name</em>, <em>force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scron.week.SimpleCRON.remove" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove</code><span class="sig-paren">(</span><em>callback_name</em>, <em>force=False</em>, <em>_lock=True</em><span class="sig-paren">)</span><a class="headerlink" href="#scron.week.SimpleCRON.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes from the counters a callback that occurs under ID callback_name.</p>
 <p>Recalculates the nearest callback to call.</p>
 <dl class="field-list simple">
@@ -161,10 +161,12 @@
 <dt id="scron.week.SimpleCRON.remove_all">
 <code class="descname">remove_all</code><span class="sig-paren">(</span><em>force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scron.week.SimpleCRON.remove_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes all calls from the counters.</p>
-<p>Stops the countdown to the nearest callback.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>force</strong> – force removal of the callback.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -198,12 +200,6 @@ Try to set another timer ID.
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="scron.week.SimpleCRON.sync_time">
-<code class="descname">sync_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scron.week.SimpleCRON.sync_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Synchronizes SimpleCRON with time.</p>
 </dd></dl>
 
 </dd></dl>

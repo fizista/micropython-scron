@@ -99,6 +99,10 @@ Then compile the sources, and upload them to your device.</p>
 <h2>Simple examples<a class="headerlink" href="#simple-examples" title="Permalink to this headline">¶</a></h2>
 <p>Simple code to run every second:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scron.week</span> <span class="kn">import</span> <span class="n">simple_cron</span>
+<span class="c1"># OR</span>
+<span class="c1"># SimpleCRON single-class library, with minimal recursion depth.</span>
+<span class="c1"># This is mainly for ESP8266, because we have very few possible recursions.</span>
+<span class="kn">from</span> <span class="nn">scron.cweek</span> <span class="kn">import</span> <span class="n">simple_cron</span>
 <span class="c1"># Depending on the device, you need to add a task that</span>
 <span class="c1"># will be started at intervals shorter than the longest</span>
 <span class="c1"># time the timer can count.</span>
@@ -164,6 +168,17 @@ Example: (6, 13, 5, 10).  This is <strong>(</strong> Sunday <strong>,</strong> 1
 <li><p><code class="code python docutils literal notranslate"><span class="name"><span class="pre">memory</span></span></code> - Shared memory for this particular callback, between all calls.
 By default this is a dictionary.</p></li>
 </ul>
+<p>If for some reason a running callback throws an exception,
+then it is possible to process this event with special functions.
+The default exception processing function is print().</p>
+<p>To add new processing functions for callback exceptions, simply add them to the list below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_cron</span><span class="o">.</span><span class="n">callback_exception_processors</span><span class="p">(</span><span class="n">processor_function</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<blockquote>
+<div><p>processor_function is function(exception_instance)</p>
+</div></blockquote>
 </div>
 <div class="section" id="important-notes">
 <h2>Important notes:<a class="headerlink" href="#important-notes" title="Permalink to this headline">¶</a></h2>
@@ -172,7 +187,7 @@ By default this is a dictionary.</p></li>
 <li><p>If there are several functions to run at a given time, then they are
 started without a specific order.</p></li>
 <li><p>If the time has been changed (time synchronization with the network,
-own time change), run the <code class="code python docutils literal notranslate"><span class="name"><span class="pre">simple_cron</span></span><span class="operator"><span class="pre">.</span></span><span class="name"><span class="pre">sync_time</span></span><span class="punctuation"><span class="pre">()</span></span></code> function,
+own time change), run the <code class="code python docutils literal notranslate"><span class="name"><span class="pre">simple_cron</span></span><span class="operator"><span class="pre">.</span></span><span class="name"><span class="pre">_sync_time</span></span><span class="punctuation"><span class="pre">()</span></span></code> function,
 which will set a specific point in time. Without this setting,
 it may happen that some callbacks will not be started.</p></li>
 </ul>
@@ -194,6 +209,16 @@ micropython -m upip install -p modules micropython-time
 </div>
 <p>Then run the tests:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./run_tests.sh
+</pre></div>
+</div>
+<p>Testing directly on the device:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pyserial adafruit-ampy
+
+./run_tests_esp.sh upload_combined
+./run_tests_esp.sh run /dev/ttyUSB0
+
+./run_tests_esp.sh upload
+./run_tests_esp.sh run /dev/ttyUSB0
 </pre></div>
 </div>
 </div>

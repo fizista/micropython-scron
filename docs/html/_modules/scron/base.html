@@ -43,20 +43,7 @@
 <span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Timer</span>
 <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">sleep_ms</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">ticks_ms</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">mktime</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="c1"># micropython Unix port</span>
-    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">mktime</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">ucollections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-
 <span class="kn">from</span> <span class="nn">scron.scount</span> <span class="k">import</span> <span class="n">SimpleCounter</span>
-
-<span class="n">WILDCARD</span> <span class="o">=</span> <span class="n">SimpleCounter</span><span class="o">.</span><span class="n">WILDCARD_VALUE</span>
 
 
 <span class="k">class</span> <span class="nc">SimpleCRONBase</span><span class="p">(</span><span class="n">SimpleCounter</span><span class="p">):</span>
@@ -65,7 +52,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRONBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">sync_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_sync_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s2">&quot;Synchronizes SimpleCRON with time.&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_time_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estimate_time_change</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_first_step</span><span class="p">()</span>
@@ -102,6 +89,44 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">out</span>
 
+    <span class="k">def</span> <span class="nf">_first_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">deinit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">next_pointer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_pointer</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_pointer</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">next_pointer</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Possible when the callback is removed during operation.</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># This situation should not happen. If there is a callback, then the next indicator must exist.</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;scron bug,1&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_step</span><span class="p">(</span><span class="o">*</span><span class="n">next_pointer</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_wait_for_unlock_rw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Waiting for the lock to be removed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We wait 5 seconds, if the lock is not removed then we emit an error.</span>
+        <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">sleep_ms</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5000</span><span class="p">):</span>
+            <span class="n">sleep_ms</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Too long to wait for the lock to be removed!&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_lock</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes from the counters a callback that occurs under ID callback_name.</span>
+
+<span class="sd">        Recalculates the nearest callback to call.</span>
+
+<span class="sd">        :param force: force removal of the callback.</span>
+<span class="sd">        :param callback_name: callback name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRONBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">_lock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_step</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timer_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initiates a list of tasks and reserves one hardware timer.</span>
@@ -121,56 +146,7 @@
         <span class="c1"># If not, we will get an error: OSError: 261</span>
         <span class="n">timer</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">Timer</span><span class="o">.</span><span class="n">ONE_SHOT</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">timer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sync_time</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_first_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">deinit</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">next_pointer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_pointer</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_pointer</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">next_pointer</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># Possible when the callback is removed during operation.</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="c1"># This situation should not happen. If there is a callback, then the next indicator must exist.</span>
-                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;scron bug,1&#39;</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">next_step</span><span class="p">(</span><span class="o">*</span><span class="n">next_pointer</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Removes from the counters a callback that occurs under ID callback_name.</span>
-
-<span class="sd">        Recalculates the nearest callback to call.</span>
-
-<span class="sd">        :param force: force removal of the callback.</span>
-<span class="sd">        :param callback_name: callback name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRONBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback_name</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_first_step</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">remove_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Removes all calls from the counters.</span>
-
-<span class="sd">        Stops the countdown to the nearest callback.</span>
-
-<span class="sd">        :param force: force removal of the callback.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRONBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">remove_all</span><span class="p">(</span><span class="n">force</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_wait_for_unlock_rw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;\</span>
-<span class="sd">        Returns the current pointer for the counter.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># We wait 5 seconds, if the lock is not removed then we emit an error.</span>
-        <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">sleep_ms</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5000</span><span class="p">):</span>
-            <span class="n">sleep_ms</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span><span class="p">:</span>
-                <span class="k">return</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Too long to wait for the lock to be removed!&#39;</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_time</span><span class="p">()</span>
 </pre></div>
 
           </div>
