@@ -129,6 +129,9 @@ class SimpleCounter():
         """
         self._wait_for_unlock_rw()
 
+        if not callable(callback):
+            raise TypeError("Callback object isn't callable")
+
         time_steps_validated = []
         for time_step_key, (time_table_key, time_table_value) in enumerate(self.TIME_TABLE_KEYS.items()):
             time_steps_validated.append(
