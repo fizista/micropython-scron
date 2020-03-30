@@ -16,6 +16,7 @@ The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.
 Note: The library does not work properly under the  `Loboris MicroPython <https://github.com/loboris/MicroPython_ESP32_psRAM_LoBo/wiki>`_ port,
 read this issue `#3 <https://github.com/fizista/micropython-scron/issues/3>`_.
 
+
 `Project documentation. <https://fizista.github.io/micropython-scron/html/index.html>`_
 
 What you can do with this library:
