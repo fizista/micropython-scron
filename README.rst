@@ -83,7 +83,11 @@ The module takes up much less RAM.
 To do this, copy the :python:`scron` module to :bash:`micropython/ports/esp8266/modules`.
 Then compile the sources, and upload them to your device.
 
+**Important!** For this port you need an additional line of code, which contains an empty task that is called more often
+than the maximum timer time.
 
+.. code-block:: python
+    simple_cron.add('null', lambda *a, **k: None, seconds=0, minutes=range(0,59,5), removable=False)
 
 Simple examples
 ###############
