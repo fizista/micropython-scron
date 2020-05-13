@@ -11,6 +11,9 @@ Simple CRON for MicroPython
 SimpleCRON is a time-based task scheduling program inspired by the well-known
 CRON program for Unix systems.
 
+Before you use this library, you may be interested in a similar MicroCRON_ library that needs 3 times less memory
+to operate. It was written based on experience with the current library.
+
 The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.
 
 Note: The library does not work properly under the  `Loboris MicroPython <https://github.com/loboris/MicroPython_ESP32_psRAM_LoBo/wiki>`_ port,
@@ -83,14 +86,15 @@ The module takes up much less RAM.
 To do this, copy the :python:`scron` module to :bash:`micropython/ports/esp8266/modules`.
 Then compile the sources, and upload them to your device.
 
-**Important!** For this port you need an additional line of code, which contains an empty task that is called more often
-than the maximum timer time.
-
-.. code-block:: python
-    simple_cron.add('null', lambda *a, **k: None, seconds=0, minutes=range(0,59,5), removable=False)
-
 Simple examples
 ###############
+
+**Important!** You have to add the following lines of code if your application does not periodically run more actions
+than the maximum timer time. Calls should be more often than about 5 minutes.
+
+.. code-block:: python
+
+    simple_cron.add('null', lambda *a, **k: None, seconds=0, minutes=range(0,59,5), removable=False)
 
 Simple code to run every second:
 
@@ -104,8 +108,6 @@ Simple code to run every second:
     # Depending on the device, you need to add a task that
     # will be started at intervals shorter than the longest
     # time the timer can count.
-    # esp8266 about 5 minutes
-    # esp32 - for processor ESP32D0WDQ6, the problem did not occur
     simple_cron.add('null', lambda *a, **k: None, seconds=0, minutes=range(0,59,5), removable=False)
     simple_cron.add('helloID', lambda *a,**k: print('hello'))
     simple_cron.run()
@@ -257,3 +259,4 @@ If you need a different license for this library (e.g. commercial),
 please contact me: fizista+scron@gmail.com.
 
 
+.. _MicroCRON: https://github.com/fizista/micropython-mcron
