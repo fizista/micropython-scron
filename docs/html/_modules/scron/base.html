@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -40,15 +40,15 @@
 <span></span><span class="c1"># Copyright 2019 Wojciech Banaś</span>
 <span class="c1"># This code is released under the GPL3 or individual commercial license.</span>
 
-<span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Timer</span>
-<span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">sleep_ms</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">ticks_ms</span>
+<span class="kn">from</span> <span class="nn">machine</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">utime</span> <span class="kn">import</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">sleep_ms</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">ticks_ms</span>
 
-<span class="kn">from</span> <span class="nn">scron.scount</span> <span class="k">import</span> <span class="n">SimpleCounter</span>
+<span class="kn">from</span> <span class="nn">scron.scount</span> <span class="kn">import</span> <span class="n">SimpleCounter</span>
 
 
 <span class="k">class</span> <span class="nc">SimpleCRONBase</span><span class="p">(</span><span class="n">SimpleCounter</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SimpleCRONBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -108,7 +108,7 @@
 <span class="sd">        Waiting for the lock to be removed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We wait 5 seconds, if the lock is not removed then we emit an error.</span>
-        <span class="kn">from</span> <span class="nn">utime</span> <span class="k">import</span> <span class="n">sleep_ms</span>
+        <span class="kn">from</span> <span class="nn">utime</span> <span class="kn">import</span> <span class="n">sleep_ms</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5000</span><span class="p">):</span>
             <span class="n">sleep_ms</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock_rw</span><span class="p">:</span>
@@ -155,15 +155,15 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -183,7 +183,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Wojciech Banaś.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.3.
     </div>
   </body>
 </html>

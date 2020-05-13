@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -43,7 +43,11 @@
 <h1>Simple CRON for MicroPython<a class="headerlink" href="#simple-cron-for-micropython" title="Permalink to this headline">¶</a></h1>
 <p>SimpleCRON is a time-based task scheduling program inspired by the well-known
 CRON program for Unix systems.</p>
+<p>Before you use this library, you may be interested in a similar <a class="reference external" href="https://github.com/fizista/micropython-mcron">MicroCRON</a> library that needs 3 times less memory
+to operate. It was written based on experience with the current library.</p>
 <p>The software was tested under micropython 1.10 (esp32, esp8266) and python 3.5.</p>
+<p>Note: The library does not work properly under the  <a class="reference external" href="https://github.com/loboris/MicroPython_ESP32_psRAM_LoBo/wiki">Loboris MicroPython</a> port,
+read this issue <a class="reference external" href="https://github.com/fizista/micropython-scron/issues/3">#3</a>.</p>
 <p><a class="reference external" href="https://fizista.github.io/micropython-scron/html/index.html">Project documentation.</a></p>
 <div class="section" id="what-you-can-do-with-this-library">
 <h2>What you can do with this library:<a class="headerlink" href="#what-you-can-do-with-this-library" title="Permalink to this headline">¶</a></h2>
@@ -97,6 +101,11 @@ Then compile the sources, and upload them to your device.</p>
 </div>
 <div class="section" id="simple-examples">
 <h2>Simple examples<a class="headerlink" href="#simple-examples" title="Permalink to this headline">¶</a></h2>
+<p><strong>Important!</strong> You have to add the following lines of code if your application does not periodically run more actions
+than the maximum timer time. Calls should be more often than about 5 minutes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">removable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Simple code to run every second:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scron.week</span> <span class="kn">import</span> <span class="n">simple_cron</span>
 <span class="c1"># OR</span>
@@ -106,17 +115,15 @@ Then compile the sources, and upload them to your device.</p>
 <span class="c1"># Depending on the device, you need to add a task that</span>
 <span class="c1"># will be started at intervals shorter than the longest</span>
 <span class="c1"># time the timer can count.</span>
-<span class="c1"># esp8266 about 5 minutes</span>
-<span class="c1"># esp32 - for processor ESP32D0WDQ6, the problem did not occur</span>
-<span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">removable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;helloID&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">))</span>
+<span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">removable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;helloID&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">))</span>
 <span class="n">simple_cron</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Code, which is activated once a Sunday at 12:00.00:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="s1">&#39;Sunday12.00&#39;</span><span class="p">,</span>
-    <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;wake-up call&#39;</span><span class="p">),</span>
+    <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;wake-up call&#39;</span><span class="p">),</span>
     <span class="n">weekdays</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
     <span class="n">minutes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -127,7 +134,7 @@ Then compile the sources, and upload them to your device.</p>
 <p>Every second minute:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_cron</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="s1">&#39;Every second minute&#39;</span><span class="p">,</span>
-    <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s1">&#39;second call&#39;</span><span class="p">),</span>
+    <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;second call&#39;</span><span class="p">),</span>
     <span class="n">minutes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
     <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span>
 <span class="p">)</span>
@@ -287,15 +294,15 @@ please contact me: <a class="reference external" href="mailto:fizista+scron&#37;
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -317,7 +324,7 @@ please contact me: <a class="reference external" href="mailto:fizista+scron&#37;
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Wojciech Banaś.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.3.
     </div>
   </body>
 </html>
