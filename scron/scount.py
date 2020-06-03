@@ -132,15 +132,14 @@ class SimpleCounter():
         if not callable(callback):
             raise TypeError("Callback object isn't callable")
 
-        time_steps_validated = []
-        for time_step_key, (time_table_key, time_table_value) in enumerate(self.TIME_TABLE_KEYS.items()):
-            time_steps_validated.append(
-                self._validate_input(
-                    time_table_key,
-                    time_steps[time_step_key],
-                    time_table_value
-                )
+        time_steps_validated = [
+            self._validate_input(
+                time_table_key, time_steps[time_step_key], time_table_value
             )
+            for time_step_key, (time_table_key, time_table_value) in enumerate(
+                self.TIME_TABLE_KEYS.items()
+            )
+        ]
 
         max_level = len(self.TIME_TABLE_KEYS)
         # [ (time_table_part, <keys to check>, <current key>) ]
@@ -235,7 +234,7 @@ class SimpleCounter():
             max_level = len(self.TIME_TABLE_KEYS)
             time_table_node = time_table_node_base
             out_value = tuple()
-            for level in range(max_level + 1):
+            for _ in range(max_level + 1):
                 if type(time_table_node) == set:
                     break
                 key, time_table_node = next(iter(time_table_node.items()))
@@ -295,10 +294,10 @@ class SimpleCounter():
         if type(_time_table_node) is set:
             yield _prev_data + (_time_table_node,)
         else:
-            if _prev_data == None:
+            if _prev_data is None:
                 _prev_data = tuple()
 
-            if _time_table_node == None:
+            if _time_table_node is None:
                 _time_table_node = self.time_table
 
             for time_table_key, time_table_value in _time_table_node.items():
@@ -333,14 +332,13 @@ class SimpleCounter():
         # Imposing a blockade of changes on the callback database.
         self._lock_rw = _lock
 
-        if not force:
-            if not self.callbacks[callback_name][1]:
-                raise Exception('This callback cannot be removed!')
+        if not force and not self.callbacks[callback_name][1]:
+            raise Exception('This callback cannot be removed!')
 
         max_level = len(self.TIME_TABLE_KEYS)
         # [ (time_table_part, <keys to check>, <current key>) ]
         time_table_parts = [[self.time_table, list(self.time_table.keys()), None]]
-        while len(time_table_parts) > 0:
+        while time_table_parts:
             if time_table_parts[-1][2] is None:
                 if len(time_table_parts[-1][1]) > 0:
                     current_key = time_table_parts[-1][1].pop()

@@ -16,9 +16,7 @@ try:
 
 
     def repr_dict(dictionary):
-        out_values = []
-        for key, value in dictionary.items():
-            out_values.append('(%s, %s)' % (key, value))
+        out_values = ['(%s, %s)' % (key, value) for key, value in dictionary.items()]
         return '%s([%s])' % (dictionary.__class__.__name__, ', '.join(out_values))
 
 except ImportError:
@@ -39,9 +37,7 @@ except ImportError:
 
 
     def repr_dict(dictionary):
-        out_values = []
-        for key, value in dictionary.items():
-            out_values.append('%s: %s' % (key, value))
+        out_values = ['%s: %s' % (key, value) for key, value in dictionary.items()]
         return '%s({%s})' % (dictionary.__class__.__name__, ', '.join(out_values))
 
 
@@ -104,9 +100,8 @@ class CounterDict:
         """
         self.count_table = count_table
         self.count_table_limits = count_table_limits
-        if len(list(self.keys())) > 0:
-            if max(self.keys()) > count_table_limits[0]:
-                raise KeyError('Keys can have a maximum value of %d' % count_table_limits[0])
+        if len(list(self.keys())) > 0 and max(self.keys()) > count_table_limits[0]:
+            raise KeyError('Keys can have a maximum value of %d' % count_table_limits[0])
 
     def items(self):
         def get_value(key, value):
@@ -128,7 +123,7 @@ class CounterDict:
 
     def keys(self):
         if self.WILDCARD_VALUE in self.count_table:
-            return range(0, self.count_table_limits[0] + 1)
+            return range(self.count_table_limits[0] + 1)
         else:
             return self.count_table.keys()
 

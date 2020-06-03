@@ -41,10 +41,7 @@ class SimpleCRON(SimpleCRONBase):
 
         :return: tuple(weekday, hour, minute, second)
         """
-        if _localtime:
-            lt = _localtime
-        else:
-            lt = localtime()
+        lt = _localtime if _localtime else localtime()
         year, month, mday, hour, minute, second, weekday, yearday = lt
         return weekday, hour, minute, second
 
@@ -76,9 +73,7 @@ class SimpleCRON(SimpleCRONBase):
             def is_the_same_callback():
                 # Skip callbacks calls when time does not match.
                 if next_time_pointer == last_time_pointer:
-                    if current_pointer == next_time_pointer:
-                        return False
-                    return True
+                    return current_pointer != next_time_pointer
                 return False
 
             # There are no new tasks in the future, so we finish
@@ -121,6 +116,5 @@ class SimpleCRON(SimpleCRONBase):
         """
         gc.collect()
         return super(SimpleCRON, self).run_callbacks(weekday, hour, minute, second)
-        gc.collect()
 
 simple_cron = SimpleCRON()

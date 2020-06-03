@@ -51,12 +51,12 @@ class SimpleCRONBase(SimpleCounter):
             return out
 
     def _first_step(self):
-        if self.timer == None:
+        if self.timer is None:
             return
         self.timer.deinit()
         if len(self.callbacks) > 0:
             next_pointer = self.get_next_pointer(*self.get_current_pointer())
-            if next_pointer == None:
+            if next_pointer is None:
                 # Possible when the callback is removed during operation.
                 if len(self.callbacks) > 0:
                     # This situation should not happen. If there is a callback, then the next indicator must exist.
@@ -70,7 +70,7 @@ class SimpleCRONBase(SimpleCounter):
         """
         # We wait 5 seconds, if the lock is not removed then we emit an error.
         from utime import sleep_ms
-        for i in range(5000):
+        for _ in range(5000):
             sleep_ms(1)
             if not self._lock_rw:
                 return
